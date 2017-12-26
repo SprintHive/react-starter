@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: $name
+  name: $name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $name
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: $name
+    spec:
+      containers:
+      - image: $image
+        name: $name
+        env:
+        - name: APP_NAME
+          value: $name
+        - name: APP_VERSION
+          value: $version
+        livenessProbe:
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          periodSeconds: 120
+          httpGet:
+            path: /ping
+            port: 7001
+        ports:
+        - containerPort: 7001
+      restartPolicy: Always

@@ -1,0 +1,18 @@
+{
+  "name": "react-starter",
+  "version": "1.0.0",
+  "description": "A good starting point for a react js app.",
+  "main": "server/server.js",
+  "scripts": {
+    "client": "node start-client.js",
+    "build-client": "node build-client.js",
+    "server": "DEBUG=sprinthive:* PORT=3006 node server/server.js ",
+    "server-prod": "NODE_ENV=production DEBUG=sprinthive:* PORT=3006 node server/server.js ",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jon Lai Lam",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}

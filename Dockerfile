@@ -17,4 +17,4 @@ EXPOSE 3006
 WORKDIR /app
 RUN ls -l
 
-CMD NODE_ENV=production DEBUG=sprinthive:* PORT=3006 node server/server.js
+CMD NODE_ENV=production DEBUG=sprinthive:* PORT=7001 node server/server.js

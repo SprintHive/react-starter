@@ -38,7 +38,6 @@ nodejsNode(label: 'nodejs-and-docker') {
             version = versionTag
             image = dockerImage
             name = componentName
-            host = componentName + ".192.168.99.100.nip.io"
         }
 
         for (String kubeResource : kubeResources) {

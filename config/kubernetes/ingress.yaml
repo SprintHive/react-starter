@@ -4,7 +4,7 @@ metadata:
   name: $name
 spec:
   rules:
-  - host: $host
+  - host: react-starter.192.168.99.100.nip.io
     http:
       paths:
       - backend:

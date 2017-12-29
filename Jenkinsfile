@@ -13,7 +13,7 @@ nodejsNode(label: 'nodejs-and-docker') {
         dockerImage = "${componentName}:${versionTag}"
 
         container(name: 'nodejs') {
-            sh "cd client; yarn install; yarn run build-client"
+            sh "cd client; yarn install; yarn run build"
             sh "yarn install --production"
         }
     }

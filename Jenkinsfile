@@ -6,7 +6,7 @@ def versionTag = ''
 def resourcesDir = 'config/kubernetes'
 def dockerImage
 
-gradleNode(label: 'nodejs-and-docker') {
+nodejsNode(label: 'nodejs-and-docker') {
     stage('Compile source') {
         checkout scm
         versionTag = getNewVersion {}

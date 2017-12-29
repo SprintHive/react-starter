@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-@Library('github.com/SprintHive/sprinthive-pipeline-library')
+@Library('github.com/SprintHive/sprinthive-pipeline-library@nodejs')
 
 def componentName = 'react-starter'
 def versionTag = ''
@@ -11,6 +11,11 @@ gradleNode(label: 'nodejs-and-docker') {
         checkout scm
         versionTag = getNewVersion {}
         dockerImage = "${componentName}:${versionTag}"
+
+        container(name: 'nodejs') {
+            sh "yarn run build-client"
+            sh "yarn install --production"
+        }
     }
 
     stage('Build docker image') {

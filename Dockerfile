@@ -12,7 +12,7 @@ COPY node_modules .
 WORKDIR /app/server
 COPY server .
 
-EXPOSE 3006
+EXPOSE 7001
 
 WORKDIR /app
 RUN ls -l

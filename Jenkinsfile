@@ -31,7 +31,8 @@ nodejsNode(label: 'nodejs-and-docker') {
         def kubeResources = kubeResourcesFromTemplates {
             templates = [
                 readFile(resourcesDir + '/deployment.yaml'),
-                readFile(resourcesDir + '/service.yaml')
+                readFile(resourcesDir + '/service.yaml'),
+                readFile(resourcesDir + '/ingress.yaml')
             ]
             stage = deployStage
             version = versionTag

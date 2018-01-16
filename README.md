@@ -2,9 +2,26 @@
 
 An example of a react js app configured to deployed with ship.
 
+## Get Node
+
+I recommend using nvm to manage the different versions of node on your machine.
+
+    # From https://github.com/creationix/nvm
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
+    
+    # Install node with nvm
+    nvm install v8.1.2
+     
+## Get Yarn
+
+Browse to the following link and follow the instructions
+    
+    https://yarnpkg.com/en/docs/install    
+    
+
 ## Progress so far
 
-The following commands are¡ to be run from the project root.
+The following commands are to be run from the project root.
 
 The basic dev workflow is to open 2 terminals and run the client in one and the server in the other.
 

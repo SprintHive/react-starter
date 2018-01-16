@@ -1,5 +1,13 @@
 body {
+  font-family: "Roboto", sans-serif;
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  height: 100%;
+  color: #c1c1c1;
+  background-color: #191A1A;
+}
+
+
+#root {
+  height: 100vh;
 }

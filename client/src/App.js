@@ -1,21 +1,63 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import {StyleRoot} from 'radium';
+import {connect} from "react-redux";
+import ConnectionStatus from './modules/socketio/ConnectionStatus'
+import Example2 from "./modules/example1/Example1";
+import Login from "./modules/login/Login";
+import {compose, withState} from "recompose";
+import {nonOptimalStates} from "./hoc/nonOptimalStates";
+import Logo from "./components/logo/Logo";
+import TeamGallery from "./components/teamGallery/TeamGallery";
+import DisplayWhoIsLoggedIn from "./components/dispalyWhoIsLoggedIn/DisplayWhoIsLoggedIn";
+import SignOut from "./modules/signout/SignOut";
+import Splash from "./modules/splash/Splash";
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
-}
+const mapStateToProps = (state) => {
+  return {loggedInUser: state.auth.user}
+};
 
-export default App;
+const loginRequired = (props) => {
+  return props.loggedInUser === null;
+};
+
+const PrivateApp = () => <Example2/>;
+
+// const showLogin = () => <Login/>;
+// const showLogin = () => <TeamGallery/>;
+const showLogin = () =>
+  <div>
+    <Login/>
+    <TeamGallery/>
+  </div>;
+
+const theSplashScreen = (props) => <Splash updateSplash={props.updateSplash}/>;
+
+const withSplash = compose(
+  withState("showSplash", "updateSplash", true)
+);
+
+const weNeedToShowSplashScreen = ({showSplash}) => {
+  return showSplash;
+};
+
+const enhance = compose(
+  connect(mapStateToProps),
+  withSplash,
+  nonOptimalStates([
+    {when: weNeedToShowSplashScreen, render: theSplashScreen},
+    {when: loginRequired, render: showLogin}
+  ])
+);
+
+const Content = enhance(PrivateApp);
+
+const Shell = () =>
+  <StyleRoot>
+    <DisplayWhoIsLoggedIn/>
+    <SignOut/>
+    <Logo/>
+    <Content/>
+    <ConnectionStatus/>
+  </StyleRoot>;
+
+export default Shell;

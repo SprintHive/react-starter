@@ -44,7 +44,7 @@ const enhance = compose(
   connect(mapStateToProps),
   withSplash,
   nonOptimalStates([
-    {when: weNeedToShowSplashScreen, render: theSplashScreen},
+    // {when: weNeedToShowSplashScreen, render: theSplashScreen},
     {when: loginRequired, render: showLogin}
   ])
 );

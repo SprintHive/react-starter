@@ -1,29 +1,12 @@
-const {createStore} = require("redux");
+#!/usr/bin/env node
 
-const initialState = {counter: 0};
-const reducer = (state = initialState, action) => {
+const {Observable} = require("rxjs");
+const axios = require("axios");
 
-  switch(action.type) {
-    case "INC":
-      return {...state, ...{counter: state.counter + 1}};
-
-    default:
-      return state;
-  }
+const params = {
+  username: "jon",
+  password: "password"
 };
 
-
-const store = createStore(reducer);
-
-const render = () => {
-  console.log(JSON.stringify(store.getState(), null, 2));
-};
-
-store.subscribe(render);
-
-setTimeout(() => {
-  console.log("Dispatching action");
-  store.dispatch({type: "INC"});
-}, 1000);
-
-console.log("hello");
+Observable.fromPromise(axios.post("http://localhost:3007/login", params))
+  .subscribe(ans => console.log(ans.data));

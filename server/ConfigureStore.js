@@ -2,6 +2,7 @@ const {combineEpics, createEpicMiddleware} = require('redux-observable');
 const {createStore, applyMiddleware, compose} = require('redux');
 const {Subject, Observable} = require("rxjs");
 const moment = require('moment');
+const axios = require("axios");
 
 const SOCKET_CONNECTED = "SOCKET_CONNECTED";
 
@@ -56,10 +57,19 @@ const sendActionsFromServerToSockets = (action$, store, {io}) => {
 const signIn = (action$) => {
   const loginAttempted = action$.ofType("LOGIN_ATTEMPTED")
     .switchMap(action => {
-      console.log(`Processing action ${action.type}`);
+      console.log(`Processing action ${action.type} ${JSON.stringify(action.payload, null, 2)}`);
       const socketId = action.meta.socketId;
       const user = action.payload;
-      return Observable.of({type: "USER_LOGGED_IN", meta: {socketId, fromServer: true}, payload: {user}});
+      const params = {username: user.name, password: "password", socketId};
+      return Observable.fromPromise(axios.post("http://localhost:3007/login", params))
+        .map(({data}) => ({
+          type: "USER_LOGGED_IN",
+          meta: {
+            socketId,
+            fromServer: true
+          },
+          payload: {user: data}
+        }));
     });
 
   const usernameCaptured = action$.ofType("USERNAME_CAPTURED")
@@ -71,6 +81,25 @@ const signIn = (action$) => {
     });
 
   return Observable.merge(loginAttempted, usernameCaptured);
+};
+
+
+const signOut = (action$) => {
+  return action$.ofType("SIGN_OUT_ATTEMPT")
+    .switchMap(action => {
+      console.log(`Processing action ${action.type} ${JSON.stringify(action.payload, null, 2)}`);
+      const socketId = action.meta.socketId;
+      const params = {socketId};
+      return Observable.fromPromise(axios.post("http://localhost:3007/logout", params))
+        .map(({data}) => ({
+          type: "SIGN_OUT_SUCCESS",
+          meta: {
+            socketId,
+            fromServer: true
+          },
+          payload: null
+        }));
+    });
 };
 
 const dateOfBirthCaptured = (action$) => {
@@ -90,6 +119,7 @@ const rootEpic = combineEpics(
   dispatchActionsToRedux,
   sendActionsFromServerToSockets,
   signIn,
+  signOut,
   dateOfBirthCaptured
 );
 

@@ -7,12 +7,15 @@
     "client": "node start-client.js",
     "build-client": "node build-client.js",
     "server": "DEBUG=sprinthive:* PORT=3006 nodemon server/server.js ",
+    "horton": "DEBUG=sprinthive:* PORT=3007 nodemon horton/server.js ",
     "server-prod": "NODE_ENV=production DEBUG=sprinthive:* PORT=3006 node server/server.js ",
     "test": "nodemon test/playground.js"
   },
   "author": "Jon Lai Lam",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.17.1",
+    "cors": "^2.8.4",
     "express": "^4.16.2",
     "moment": "^2.20.1",
     "redux": "^3.7.2",

@@ -18,21 +18,16 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(clientPath));
 }
 
-const userMap = {};
-const socketMap = {};
-
 app.get('/sockets', function (req, res) {
   io.of('/').adapter.clients((err, clients) => {
     res.json(clients)
   })
 });
 
-// require('./Sockets')({io, socketMap, userMap});
-// require('./Reducer')({io, socketMap, userMap});
 require('./ConfigureStore')({io});
 app.get('/ping', require("./HealthCheck"));
 app.get('/async-example', require('./AsyncExample'));
-app.post('/api/dispatch', require('./HttpActionConnector')({io, socketMap, userMap}));
+app.post('/api/dispatch', require('./HttpActionConnector')({io}));
 
 // All remaining requests return the React app, so it can handle routing.
 app.get('*', function(request, response) {

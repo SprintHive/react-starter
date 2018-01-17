@@ -23,13 +23,16 @@ Browse to the following link and follow the instructions
 
 The following commands are to be run from the project root.
 
-The basic dev workflow is to open 2 terminals and run the client in one and the server in the other.
+The basic dev workflow is to open 3 terminals and run the client, the server and horton.
 
     # Start the client 
     yarn client 
     
     # Start the sever 
     yarn server
+
+    # Start horton 
+    yarn horton
 
 Bundling the client for production
 

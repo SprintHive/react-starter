@@ -1,11 +1,10 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {compose, setDisplayName, withHandlers, withState} from 'recompose';
+import {compose, setDisplayName, withHandlers} from 'recompose';
 import FlexBox from "../FlexBox";
 import moment from 'moment';
-import {dateOfBirthCaptured} from './DateOfBirthActions';
+import {dateOfBirthCaptured, dateOfBirthUpdated} from './DateOfBirthActions';
 import {logProps} from "../../hoc/logProps";
-
 
 const inputStyle = {
   backgroundColor: 'transparent',
@@ -25,12 +24,15 @@ const inputStyle = {
   color: '#c1c1c1'
 };
 
+const mapStateToProps = (state) => {
+  return {dateOfBirth: state.user.dateOfBirthInput}
+};
+
 const whitelist = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "/"];
 const slashAllowed = [2, 5];
 const enhance = compose(
   setDisplayName('DateOfBirthInput'),
-  connect(null, {dateOfBirthCaptured}),
-  withState('dateOfBirth', 'updateDateOfBirth', ''),
+  connect(mapStateToProps, {dateOfBirthUpdated, dateOfBirthCaptured}),
   withHandlers({
     filterInput: ({dateOfBirth, socket, updateDateOfBirth, dateOfBirthCaptured}) => e => {
       const inputString = String.fromCharCode(e.charCode);
@@ -73,13 +75,12 @@ const enhance = compose(
       if (proposedDateOfBirth.length === 10) {
         const dob = moment(proposedDateOfBirth, 'DD/MM/YYYY');
         if (dob.isValid()) {
-          // console.log(dob.toISOString());
           dateOfBirthCaptured({dateOfBirth: dob});
         }
       }
     },
-    onDateOfBirthUpdated: ({updateDateOfBirth}) => e => {
-      updateDateOfBirth(e.target.value);
+    onDateOfBirthUpdated: ({dateOfBirthUpdated}) => e => {
+      dateOfBirthUpdated({dateOfBirthInput: e.target.value});
     }
   }),
   logProps(console.log)

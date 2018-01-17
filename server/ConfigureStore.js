@@ -53,7 +53,6 @@ const sendActionsFromServerToSockets = (action$, store, {io}) => {
     });
 };
 
-
 const signIn = (action$) => {
   const loginAttempted = action$.ofType("LOGIN_ATTEMPTED")
     .switchMap(action => {

@@ -1,20 +1,20 @@
 import {Subject, Observable} from "rxjs";
-import {socketConnectionStatusChagned} from "../modules/socketio/actions";
+import {socketConnectionStatusChanged} from "../modules/socketio/actions";
 
 export function socketStatus(action$, store, {socket}) {
 
   console.log("Creating socket connection");
   const subject = new Subject();
   socket.on('connect', () => {
-    subject.next(socketConnectionStatusChagned({status: 'Connected'}));
+    subject.next(socketConnectionStatusChanged({status: 'Connected'}));
   });
 
   socket.on('disconnect', () => {
-    subject.next(socketConnectionStatusChagned({status: 'Disconnected' }));
+    subject.next(socketConnectionStatusChanged({status: 'Disconnected' }));
   });
 
   socket.on('reconnecting', () => {
-    subject.next(socketConnectionStatusChagned({status: 'Reconnecting'}));
+    subject.next(socketConnectionStatusChanged({status: 'Reconnecting'}));
   });
 
   socket.on('actions', action => {

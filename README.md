@@ -1,6 +1,6 @@
-# React starter
+# React starter (overlord)
 
-An example of a react js app configured to deployed with ship.
+An proof of concept with examples of how different user cases could be implemented using event sourcing.
 
 ## Get Node
 
@@ -10,7 +10,7 @@ I recommend using nvm to manage the different versions of node on your machine.
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
     
     # Install node with nvm
-    nvm install v8.1.2
+    nvm install v8.9.4
      
 ## Get Yarn
 
@@ -19,38 +19,54 @@ Browse to the following link and follow the instructions
     https://yarnpkg.com/en/docs/install    
     
 
-## Progress so far
+## Install the npm dependencies
 
-The following commands are to be run from the project root.
+From the project root run ```yarn```
+From the <project_root>/client directory run ```yarn```
 
-The basic dev workflow is to open 3 terminals and run the client, the server and horton.
+## Get the app up and running
 
-    # Start the client 
-    yarn client 
+When developing the application is made up of 3 parts: 
+
+* the webpack dev server
+* the back end for a font end aka bff
+* the api gateway aka horton
+
+Each of these processes will be run in different terminals. 
+
+> These commands must be run from the project root.
+
+    # Temnial 1 - start the bff 
+    yarn server  
     
-    # Start the sever 
-    yarn server
-
-    # Start horton 
+    # Terminal 2 - start horton
     yarn horton
-
-Bundling the client for production
-
-    # Change to the client dir
-    cd client
-    yarn build
     
-To test the server can server the production build start the server with NODE_ENV=production
+    # Terminal 3 - start the webpack dev server
+    yarn client
+
+## Deployment
+
+We use docker to deploy the application.
+
+### Bundling the client for production
+
+    yarn build-client
+    
+### Test the server in production mode
     
     # Start the sever with NODE_ENV=production
+    yarn build-client
     yarn server-prod
     
-Building the docker image
+    # browse to http://localhost:3006
+    
+### Building the docker image
 
     # Building the docker image
     docker -t react-starter:v0.1 .
     
-Testing the docker image
+### Testing the docker image
 
     # Running the docker image in a container
     docker run --name react-starter --rm -i react-starter:v0.1 
@@ -60,6 +76,6 @@ Testing the docker image
     # To stop the docker container
     docker stop react-starter 
     
-The Jenkinsfile 
+### The Jenkinsfile 
 
 This is a very simple step for now it just builds the docker image and publishes it to the minikube docker registry.    

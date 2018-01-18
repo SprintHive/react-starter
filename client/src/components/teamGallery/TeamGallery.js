@@ -17,16 +17,16 @@ const enhance = compose(
   connect(null, {dispatchLoginAttempted}),
   withProps({
     userList: [
-      {name: "Dane", url: "/avatars/db-avatar.png"},
-      {name: "Dirk", url: "/avatars/dlr-avatar.png"},
-      {name: "Dale", url: "/avatars/dt-avatar.png"},
-      {name: "Greg", url: "/avatars/gk-avatar.png"},
-      {name: "Jon", url: "/avatars/jll-avatar.png"},
-      {name: "Sam", url: "/avatars/sl-avatar.png"},
-      {name: "JZ", url: "/avatars/jz-avatar.png"},
-      {name: "Trevor", url: "/avatars/tj-avatar.png"},
-      {name: "Marco", url: "/avatars/mt-avatar.png"},
-      {name: "Nic", url: "/avatars/ne-avatar.png"}
+      {name: "Dane", url: "/avatars/DB-Avatar.png"},
+      {name: "Dirk", url: "/avatars/DLR-Avatar.png"},
+      {name: "Dale", url: "/avatars/DT-Avatar.png"},
+      {name: "Greg", url: "/avatars/GK-Avatar.png"},
+      {name: "Jon", url: "/avatars/JLL-Avatar.png"},
+      {name: "Sam", url: "/avatars/SL-Avatar.png"},
+      {name: "JZ", url: "/avatars/JZ-Avatar.png"},
+      {name: "Trevor", url: "/avatars/TJ-Avatar.png"},
+      {name: "Marco", url: "/avatars/MT-Avatar.png"},
+      {name: "Nic", url: "/avatars/NE-Avatar.png"}
     ]
   }),
   withHandlers({

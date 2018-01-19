@@ -1,10 +1,8 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {compose, setDisplayName, withHandlers} from 'recompose';
+import PropTypes from 'prop-types';
+import {compose, setDisplayName, setPropTypes, withHandlers, withState} from 'recompose';
 import FlexBox from "../FlexBox";
 import moment from 'moment';
-import {dateOfBirthCaptured, dateOfBirthUpdated} from './DateOfBirthActions';
-import {logProps} from "../../hoc/logProps";
 
 const inputStyle = {
   backgroundColor: 'transparent',
@@ -24,15 +22,12 @@ const inputStyle = {
   color: '#c1c1c1'
 };
 
-const mapStateToProps = (state) => {
-  return {dateOfBirth: state.user.dateOfBirthInput}
-};
-
 const whitelist = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "/"];
 const slashAllowed = [2, 5];
 const enhance = compose(
   setDisplayName('DateOfBirthInput'),
-  connect(mapStateToProps, {dateOfBirthUpdated, dateOfBirthCaptured}),
+  setPropTypes({dateOfBirthCaptured: PropTypes.func.isRequired}),
+  withState("dateOfBirth", "updateDateOfBirth", ""),
   withHandlers({
     filterInput: ({dateOfBirth, socket, updateDateOfBirth, dateOfBirthCaptured}) => e => {
       const inputString = String.fromCharCode(e.charCode);
@@ -79,23 +74,24 @@ const enhance = compose(
         }
       }
     },
-    onDateOfBirthUpdated: ({dateOfBirthUpdated}) => e => {
-      dateOfBirthUpdated({dateOfBirthInput: e.target.value});
+    onDateOfBirthUpdated: ({updateDateOfBirth}) => e => {
+      updateDateOfBirth(e.target.value);
     }
-  }),
-  logProps(console.log)
+  })
 );
 
-export const DateOfBirthInput = (props) =>
-  <FlexBox centered item>
-    <input style={inputStyle}
-           type="text"
-           placeholder="dd/mm/yyyy"
-           onKeyPress={props.filterInput}
-           onChange={props.onDateOfBirthUpdated}
-           value={props.dateOfBirth}
-    />
-  </FlexBox>
-;
+export const DateOfBirthInput = (props) => {
+  return (
+    <FlexBox centered item>
+      <input style={inputStyle}
+             type="text"
+             placeholder="dd/mm/yyyy"
+             onKeyPress={props.filterInput}
+             onChange={props.onDateOfBirthUpdated}
+             value={props.dateOfBirth.length ? props.dateOfBirth : props.defaultDateOfBirth}
+      />
+    </FlexBox>
+  );
+};
 
-export default enhance(DateOfBirthInput)
+export default enhance(DateOfBirthInput);

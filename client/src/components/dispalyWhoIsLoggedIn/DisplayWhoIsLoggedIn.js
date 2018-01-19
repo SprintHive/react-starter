@@ -7,7 +7,7 @@ import FlexBox from "../FlexBox";
 const style = {
   container: {
     position: 'absolute',
-    top: 0,
+    top: 10,
     left: 10
   },
   avatarContainer: {

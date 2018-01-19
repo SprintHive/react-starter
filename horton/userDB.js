@@ -14,3 +14,7 @@ const userMap = {
 module.exports.lookupUser = (username) => {
   return userMap[username.toLowerCase()];
 };
+
+module.exports.listUsers = () => {
+  return Object.keys(userMap).map(k => userMap[k]);
+};

@@ -10,7 +10,7 @@ const http = require('http').Server(app);
 const cors = require('cors');
 const port = process.env.PORT || 3702;
 
-const {lookupUser} = require('./userDB');
+const {lookupUser, listUsers} = require('./userDB');
 
 // Add middleware here
 app.use(express.json());
@@ -29,6 +29,10 @@ app.get('/sockets', function (req, res) {
 
 app.get('/users', function (req, res) {
   res.send(userMap)
+});
+
+app.get('/team', function (req, res) {
+  res.send(listUsers())
 });
 
 app.post('/login', (req, res) => {

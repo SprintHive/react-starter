@@ -102,6 +102,23 @@ const signOut = (action$) => {
     });
 };
 
+const loadTeamGallery = (action$) => {
+  return action$.ofType("TEAM_GALLERY_WILL_MOUNT")
+    .switchMap(action => {
+      console.log(`Processing action ${action.type}`);
+      const socketId = action.meta.socketId;
+      return Observable.fromPromise(axios.get("http://localhost:3007/team"))
+        .map(({data}) => ({
+          type: "TEAM_GALLERY_LOADED",
+          meta: {
+            socketId,
+            fromServer: true
+          },
+          payload: data
+        }));
+    });
+};
+
 const dateOfBirthCaptured = (action$) => {
   return action$.ofType("DATE_OF_BIRTH_CAPTURED")
     .switchMap(action => {
@@ -120,7 +137,8 @@ const rootEpic = combineEpics(
   sendActionsFromServerToSockets,
   signIn,
   signOut,
-  dateOfBirthCaptured
+  dateOfBirthCaptured,
+  loadTeamGallery
 );
 
 module.exports = (deps) => {

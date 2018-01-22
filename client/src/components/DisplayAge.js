@@ -1,5 +1,4 @@
 import React from 'react';
-import {connect} from 'react-redux';
 import {compose, setDisplayName} from 'recompose';
 import FlexBox from "./FlexBox";
 
@@ -15,14 +14,8 @@ const ageStyle = {
   color: '#c1c1c1'
 };
 
-const mapStateToProps = (state) => {
-  console.log('Mapping State to Props', state);
-  return {age: state.user.age};
-};
-
 const enhance = compose(
   setDisplayName("idNumberInput"),
-  connect(mapStateToProps)
 );
 
 export default enhance(({age}) =>

@@ -8,11 +8,9 @@ import moment from "moment";
 import {dateOfBirthCaptured} from "../../components/dateOfBirthInput/DateOfBirthActions";
 
 const mapStateToProps = (state) => {
-  if (state.user.dateOfBirth) {
-    return {defaultDateOfBirth: moment(state.user.dateOfBirth).format('DD/MM/YYYY')}
-  } else {
-    return {defaultDateOfBirth: undefined}
-  }
+  const props = {age: state.user.age, defaultDateOfBirth: undefined};
+  if (state.user.dateOfBirth) props.defaultDateOfBirth = moment(state.user.dateOfBirth).format('DD/MM/YYYY');
+  return props;
 };
 
 const enhance = compose(
@@ -20,11 +18,11 @@ const enhance = compose(
   connect(mapStateToProps, {dateOfBirthCaptured})
 );
 
-export const Example1 = ({dateOfBirthCaptured, defaultDateOfBirth}) => {
+export const Example1 = ({dateOfBirthCaptured, defaultDateOfBirth, age}) => {
   return (
     <FlexBox column>
       <DateOfBirthInput {...{dateOfBirthCaptured, defaultDateOfBirth}}/>
-      <DisplayAge/>
+      <DisplayAge {...{age}}/>
     </FlexBox>
   )
 };

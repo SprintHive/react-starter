@@ -5,7 +5,7 @@ const fadeIn = {
   transitionProperty: "opacity",
   transitionDuration: "0.5s",
   transitionTimingFunction: "ease-in"
-}
+};
 
 /**
  * A HOC which starts a component off with opacity 0 and then a second after the component has mounted
@@ -18,11 +18,11 @@ export const withFadeIn = (config) => compose(
   withState("fadeIn", "updateFadeIn", [fadeIn]),
   lifecycle({
     componentDidMount() {
-      const {updateFadeIn} = this.props
-      const delay = (config && config.delay) || 1000
+      const {updateFadeIn} = this.props;
+      const delay = (config && config.delay) || 1000;
       setTimeout(() => {
-        updateFadeIn([fadeIn, {opacity: 1}])
+        updateFadeIn([fadeIn, {opacity: 1}]);
       }, delay)
     },
   })
-)
+);

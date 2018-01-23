@@ -1,5 +1,4 @@
 import React from 'react';
-import {StyleRoot} from 'radium';
 import {connect} from "react-redux";
 import ConnectionStatus from './modules/socketio/ConnectionStatus'
 import Example2 from "./modules/example1/Example1";
@@ -9,7 +8,9 @@ import Logo from "./components/logo/Logo";
 import TeamGalleryContainer from "./modules/login/TeamGalleryContainer";
 import DisplayWhoIsLoggedIn from "./components/dispalyWhoIsLoggedIn/DisplayWhoIsLoggedIn";
 import SignOut from "./modules/signout/SignOut";
-// import Splash from "./modules/splash/Splash";
+import {withConnection} from "./hoc/withConnection";
+import {withFadeIn} from "./hoc/withFadeIn";
+import Radium from 'radium'
 
 const mapStateToProps = (state) => {
   return {loggedInUser: state.auth.user}
@@ -21,38 +22,44 @@ const loginRequired = (props) => {
 
 const PrivateApp = () => <Example2/>;
 
-const showLogin = () => <TeamGalleryContainer/>;
+const enhanceLogin = compose(
+  withFadeIn({delay: 1000}),
+  Radium,
+);
 
-// const theSplashScreen = (props) => <Splash updateSplash={props.updateSplash}/>;
+const showLogin = enhanceLogin(({fadeIn}) => {
+  return (
+    <div style={fadeIn}>
+      <Logo/>
+      <TeamGalleryContainer/>
+      <ConnectionStatus/>
+    </div>
+  )
+});
 
 const withSplash = compose(
   withState("showSplash", "updateSplash", true)
 );
 
-/*
-const weNeedToShowSplashScreen = ({showSplash}) => {
-  return showSplash;
-};
-*/
-
-const enhance = compose(
+const withLogin = compose(
   connect(mapStateToProps),
   withSplash,
   nonOptimalStates([
-    // {when: weNeedToShowSplashScreen, render: theSplashScreen},
     {when: loginRequired, render: showLogin}
   ])
 );
 
-const Content = enhance(PrivateApp);
+const connectedApp = compose(
+  withConnection,
+  withLogin
+);
 
-const Shell = () =>
-  <StyleRoot>
+export default connectedApp(() =>
+  <div>
     <DisplayWhoIsLoggedIn/>
     <SignOut/>
     <Logo/>
-    <Content/>
+    <PrivateApp/>
     <ConnectionStatus/>
-  </StyleRoot>;
-
-export default Shell;
+  </div>
+);

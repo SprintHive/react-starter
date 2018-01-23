@@ -3,7 +3,6 @@ import {socketConnectionStatusChanged} from "../modules/socketio/actions";
 
 export function socketStatus(action$, store, {socket}) {
 
-  console.log("Creating socket connection");
   const subject = new Subject();
   socket.on('connect', () => {
     subject.next(socketConnectionStatusChanged({status: 'Connected'}));

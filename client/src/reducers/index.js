@@ -1,6 +1,6 @@
 
 const initialState = {
-  connection: {status: "connecting"},
+  connection: {status: "connecting", timeConnected: undefined},
   auth: {user: null},
   user: {age: 0, dateOfBirth: "", dateOfBirthInput: ""},
   teamGallery: {loading: false, userList: null}
@@ -16,7 +16,10 @@ export default (state = initialState, action) => {
       return {...state, teamGallery: {loading: false, userList: action.payload}};
 
     case "SOCKET_CONNECTION_STATUS_CHANGED_ACTION":
-      return {...state, connection: {...action.payload}};
+      const {status} = action.payload;
+      const connection = {status};
+      if (status === 'Connected') connection.timeConnected = Date.now();
+      return {...state, connection};
 
     case "USER_LOGGED_IN":
       return {...state, auth: {...state.auth, ...action.payload}};

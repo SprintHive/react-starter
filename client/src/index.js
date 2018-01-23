@@ -1,18 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
+import io from 'socket.io-client';
+import {StyleRoot} from 'radium';
 
 import './index.css';
 import App from './App';
 import {configureStore} from "./configureStore";
 import registerServiceWorker from './registerServiceWorker';
 
-const store = configureStore();
+const deps = {socket: io()};
+const store = configureStore(deps);
 
 ReactDOM.render(
-  <Provider store={store}>
-    <App/>
-  </Provider>,
+  <StyleRoot>
+    <Provider store={store}>
+      <App/>
+    </Provider>
+  </StyleRoot>
+  ,
   document.getElementById('root'));
 
 registerServiceWorker();

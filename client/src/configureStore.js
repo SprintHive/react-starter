@@ -1,11 +1,10 @@
 import {createStore, applyMiddleware, compose} from 'redux';
 import {createEpicMiddleware} from 'redux-observable';
-import io from 'socket.io-client';
 
 import {rootEpic} from './epics/index';
 import reducers from './reducers';
 
-export function configureStore(deps = {socket: io()}) {
+export function configureStore(deps) {
   const epicMiddleware = createEpicMiddleware(rootEpic, {
     dependencies: {
       ...deps

@@ -1,7 +1,6 @@
 const {combineEpics, createEpicMiddleware} = require('redux-observable');
 const {createStore, applyMiddleware, compose} = require('redux');
 const {Subject, Observable} = require("rxjs");
-const moment = require('moment');
 const axios = require("axios");
 
 const SOCKET_CONNECTED = "SOCKET_CONNECTED";
@@ -107,7 +106,7 @@ const loadTeamGallery = (action$) => {
     .switchMap(action => {
       console.log(`Processing action ${action.type}`);
       const socketId = action.meta.socketId;
-      return Observable.fromPromise(axios.get("http://localhost:3007/team"))
+      return Observable.fromPromise(axios.get("http://localhost:3007/cqrs/read/v1/fact/person"))
         .map(({data}) => ({
           type: "TEAM_GALLERY_LOADED",
           meta: {
@@ -119,16 +118,78 @@ const loadTeamGallery = (action$) => {
     });
 };
 
+const subscribeToEntity = (action$) => {
+  return action$.ofType("SUBSCRIBE_TO_ENTITY")
+    .switchMap(action => {
+      console.log(`Processing action ${action.type}`);
+      const socketId = action.meta.socketId;
+      const {entityKey, entityId} = action.payload;
+      const params = {socketId, payload: {entityKey, entityId}};
+
+      let endpoint = `http://localhost:3007/cqrs/subscribe/v1/entity/${entityKey}/`;
+      if (entityId) endpoint = `${endpoint}${entityId}`;
+      console.log("Subscribing to entity", endpoint);
+      axios.post(endpoint, params).then(ans => console.log(ans.data)).catch(err => {
+        if (err.response) {
+          const {status, data} = err.response;
+          console.error("Something went wrong subscribing to an entity", status, data)
+        } else {
+          console.error("Something went wrong subscribing to an entity")
+        }
+      });
+
+      return Observable.fromPromise(axios.post(endpoint, params))
+        .map(({data}) => ({
+          type: "ENTITY_LOADED",
+          meta: {socketId, fromServer: true},
+          payload: data,
+          source: {
+            service: "BFF",
+            action: {entityKey, entityId}
+          }
+        }))
+        .catch(err => {
+          console.error("Something went wrong when trying to load an entity", err);
+          return Observable.empty()
+        })
+    })
+};
+
+const unsubscribeFromEntity = (action$) => {
+  return action$.ofType("UNSUBSCRIBE_FROM_ENTITY")
+    .switchMap(action => {
+      console.log(`Processing action ${action.type}`);
+      const socketId = action.meta.socketId;
+      const {entityKey, entityId} = action.payload;
+      const params = {socketId, payload: {entityKey, entityId}};
+
+      let endpoint = `http://localhost:3007/cqrs/unsubscribe/v1/entity/${entityKey}/`;
+      if (entityId) endpoint = `${endpoint}${entityId}`;
+      console.log("Unsubscribing from entity", endpoint);
+      axios.post(endpoint, params).then(ans => console.log(ans.data)).catch(err => {
+        if (err.response) {
+          const {status, data} = err.response;
+          console.error("Something went wrong subscribing to an entity", status, data)
+        } else {
+          console.error("Something went wrong subscribing to an entity")
+        }
+      });
+
+      return Observable.empty();
+    })
+};
+
 const dateOfBirthCaptured = (action$) => {
   return action$.ofType("DATE_OF_BIRTH_CAPTURED")
     .switchMap(action => {
       console.log(`Processing action ${action.type}`);
       const socketId = action.meta.socketId;
-      const {dateOfBirth} = action.payload;
-      const mDob = moment(dateOfBirth);
-      const mNow = moment();
-      const age = mNow.diff(mDob, 'years');
-      return Observable.of({type: "AGE_CALCULATED", meta: {socketId, fromServer: true}, payload: {age}});
+      const {dateOfBirth, entityId} = action.payload;
+      const params = {socketId, payload: {dateOfBirth}};
+      return Observable.fromPromise(axios.post(
+        `http://localhost:3007/cqrs/write/v1/fact/person/${entityId}/DATE_OF_BIRTH_CAPTURED`,
+        params))
+        .mergeMap(() => Observable.empty());
     })
 };
 
@@ -138,7 +199,9 @@ const rootEpic = combineEpics(
   signIn,
   signOut,
   dateOfBirthCaptured,
-  loadTeamGallery
+  loadTeamGallery,
+  subscribeToEntity,
+  unsubscribeFromEntity
 );
 
 module.exports = (deps) => {
@@ -156,14 +219,18 @@ module.exports = (deps) => {
     )
   );
 
-  const unsubscribe = store.subscribe(() => {
-    // console.log(JSON.stringify(store.getState(), null, 2));
-  });
+  /*
+    const unsubscribe = store.subscribe(() => {
+      console.log(JSON.stringify(store.getState(), null, 2));
+    });
+  */
 
-  process.on('exit', () => {
-    console.log("exiting the process");
-    unsubscribe();
-  });
+  /*
+    process.on('exit', () => {
+      console.log("exiting the process");
+      unsubscribe();
+    });
+  */
 
   return store;
 };

@@ -13,6 +13,8 @@ const enhance = compose(
 );
 
 export const TeamGallery = ({userList = [], userSelected}) => {
+
+  console.log(userList)
   const avatarList = userList && userList.map((user) =>
     <AvatarCard key={user.name}
                 {...{user, userSelected}}

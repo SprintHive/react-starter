@@ -26,10 +26,10 @@ const whitelist = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "/"];
 const slashAllowed = [2, 5];
 const enhance = compose(
   setDisplayName('DateOfBirthInput'),
-  setPropTypes({dateOfBirthCaptured: PropTypes.func.isRequired}),
+  setPropTypes({done: PropTypes.func.isRequired}),
   withState("dateOfBirth", "updateDateOfBirth", ""),
   withHandlers({
-    filterInput: ({dateOfBirth, socket, updateDateOfBirth, dateOfBirthCaptured}) => e => {
+    filterInput: ({dateOfBirth, socket, updateDateOfBirth, done}) => e => {
       const inputString = String.fromCharCode(e.charCode);
       let currLength = dateOfBirth.length;
       if (currLength > 9) {
@@ -70,7 +70,7 @@ const enhance = compose(
       if (proposedDateOfBirth.length === 10) {
         const dob = moment(proposedDateOfBirth, 'DD/MM/YYYY');
         if (dob.isValid()) {
-          dateOfBirthCaptured({dateOfBirth: dob});
+          done({dateOfBirth: dob});
         }
       }
     },

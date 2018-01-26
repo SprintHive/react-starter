@@ -6,6 +6,21 @@ const initialState = {
   teamGallery: {loading: false, userList: null}
 };
 
+function handleSubscribeToEntity(state, action) {
+  const ans = {...state};
+  const {entityKey, entityId} = action.payload;
+  const key = `${entityKey}_${entityId}`;
+  let found = ans[key];
+  if (found) {
+    ans[key] = {...found, ...{loading: true}}
+  } else {
+    ans[key] = {...{loading: true}}
+  }
+  
+  return ans;
+}
+
+
 export default (state = initialState, action) => {
   switch (action.type) {
 
@@ -34,6 +49,25 @@ export default (state = initialState, action) => {
         auth: {user: null},
         user: {age: 0, dateOfBirth: ""}
       };
+
+    case "SUBSCRIBE_TO_ENTITY":
+      return handleSubscribeToEntity(state, action);
+
+    case "ENTITY_LOADED":
+    case "ENTITY_UPDATED":
+      const ans = {...state};
+      const {entityKey, entityId} = action.source.action;
+      const key = `${entityKey}_${entityId}`;
+      let found = ans[key];
+
+      if (found) {
+        ans[key] = {...found, ...action.payload}
+      } else {
+        ans[key] = {...action.payload}
+      }
+
+      ans[key].loading = false;
+      return ans;
 
     default:
       return state;

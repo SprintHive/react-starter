@@ -21,7 +21,7 @@ const enhance = compose(
 export default enhance(({age}) =>
   <FlexBox centered item>
     <div style={ageStyle}>
-      Age: {age}
+      Age: {age ? age : 0}
     </div>
   </FlexBox>
 );

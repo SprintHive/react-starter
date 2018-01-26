@@ -17,7 +17,7 @@ const enhance = compose(
 export const AvatarCard = ({user, onClick}) => {
   return (
     <FlexBox style={styles.card} column center item>
-      <img src={user.url} alt="" onClick={onClick}/>
+      <img src={user.avatarUrl} alt="" onClick={onClick}/>
     </FlexBox>
   )
 };

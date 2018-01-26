@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from "react-redux";
 import ConnectionStatus from './modules/socketio/ConnectionStatus'
-import Example2 from "./modules/example1/Example1";
+import Example1 from "./modules/example1/Example1";
 import {compose, withState} from "recompose";
 import {nonOptimalStates} from "./hoc/nonOptimalStates";
 import Logo from "./components/logo/Logo";
@@ -20,7 +20,7 @@ const loginRequired = (props) => {
   return props.loggedInUser === null;
 };
 
-const PrivateApp = () => <Example2/>;
+const PrivateApp = () => <Example1/>;
 
 const enhanceLogin = compose(
   withFadeIn({delay: 1000}),

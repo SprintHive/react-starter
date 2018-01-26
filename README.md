@@ -37,13 +37,24 @@ Each of these processes will be run in different terminals.
 > These commands must be run from the project root.
 
     # Temnial 1 - start the bff 
-    yarn server  
+    yarn horton  
     
     # Terminal 2 - start horton
-    yarn horton
+    yarn cqrs
     
     # Terminal 3 - start the webpack dev server
+    yarn server
+
+    # Terminal 4 - start the webpack dev server
     yarn client
+
+### Create kafka topics 
+
+From the kafka home directory run
+
+    bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic event-source
+    bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic dob-captured
+    bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic entity-updated
 
 ## Deployment
 

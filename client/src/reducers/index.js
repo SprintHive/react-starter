@@ -3,20 +3,22 @@ const initialState = {
   connection: {status: "connecting", timeConnected: undefined},
   auth: {user: null},
   user: {age: 0, dateOfBirth: "", dateOfBirthInput: ""},
-  teamGallery: {loading: false, userList: null}
+  teamGallery: {loading: false, userList: null},
+  entities: {}
 };
 
 function handleSubscribeToEntity(state, action) {
   const ans = {...state};
+  const entities = {...state.entities};
   const {entityKey, entityId} = action.payload;
   const key = `${entityKey}_${entityId}`;
-  let found = ans[key];
+  let found = entities[key];
   if (found) {
-    ans[key] = {...found, ...{loading: true}}
+    entities[key] = {...found, ...{loading: true}}
   } else {
-    ans[key] = {...{loading: true}}
+    entities[key] = {...{loading: true}}
   }
-  
+  ans.entities = entities;
   return ans;
 }
 
@@ -47,7 +49,8 @@ export default (state = initialState, action) => {
     case "SIGN_OUT_ATTEMPT":
       return {...state,
         auth: {user: null},
-        user: {age: 0, dateOfBirth: ""}
+        user: {age: 0, dateOfBirth: ""},
+        entities: {}
       };
 
     case "SUBSCRIBE_TO_ENTITY":
@@ -56,17 +59,19 @@ export default (state = initialState, action) => {
     case "ENTITY_LOADED":
     case "ENTITY_UPDATED":
       const ans = {...state};
+      const entities = {...state.entities};
       const {entityKey, entityId} = action.source.action;
       const key = `${entityKey}_${entityId}`;
-      let found = ans[key];
+      let found = entities[key];
 
       if (found) {
-        ans[key] = {...found, ...action.payload}
+        entities[key] = {...found, ...action.payload}
       } else {
-        ans[key] = {...action.payload}
+        entities[key] = {...action.payload}
       }
 
-      ans[key].loading = false;
+      entities[key].loading = false;
+      ans.entities = entities;
       return ans;
 
     default:

@@ -1,5 +1,5 @@
 import React from 'react'
-import {compose, lifecycle, renderNothing, setDisplayName, withHandlers} from 'recompose'
+import {compose, renderNothing, setDisplayName, withHandlers} from 'recompose'
 import DateOfBirthInput from "../../components/dateOfBirthInput/DateOfBirthInput";
 import FlexBox from "../../components/FlexBox";
 import DisplayAge from "../../components/DisplayAge";

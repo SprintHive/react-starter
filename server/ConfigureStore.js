@@ -101,23 +101,6 @@ const signOut = (action$) => {
     });
 };
 
-const loadTeamGallery = (action$) => {
-  return action$.ofType("TEAM_GALLERY_WILL_MOUNT")
-    .switchMap(action => {
-      console.log(`Processing action ${action.type}`);
-      const socketId = action.meta.socketId;
-      return Observable.fromPromise(axios.get("http://localhost:3007/cqrs/read/v1/fact/person"))
-        .map(({data}) => ({
-          type: "TEAM_GALLERY_LOADED",
-          meta: {
-            socketId,
-            fromServer: true
-          },
-          payload: data
-        }));
-    });
-};
-
 const subscribeToEntity = (action$) => {
   return action$.ofType("SUBSCRIBE_TO_ENTITY")
     .switchMap(action => {
@@ -184,10 +167,10 @@ const dateOfBirthCaptured = (action$) => {
     .switchMap(action => {
       console.log(`Processing action ${action.type}`);
       const socketId = action.meta.socketId;
-      const {dateOfBirth, entityId} = action.payload;
+      const {dateOfBirth, entityKey, entityId} = action.payload;
       const params = {socketId, payload: {dateOfBirth}};
       return Observable.fromPromise(axios.post(
-        `http://localhost:3007/cqrs/write/v1/fact/person/${entityId}/DATE_OF_BIRTH_CAPTURED`,
+        `http://localhost:3007/cqrs/write/v1/fact/${entityKey}/${entityId}/DATE_OF_BIRTH_CAPTURED`,
         params))
         .mergeMap(() => Observable.empty());
     })
@@ -199,7 +182,6 @@ const rootEpic = combineEpics(
   signIn,
   signOut,
   dateOfBirthCaptured,
-  loadTeamGallery,
   subscribeToEntity,
   unsubscribeFromEntity
 );

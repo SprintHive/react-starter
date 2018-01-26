@@ -1,8 +1,8 @@
 import React from 'react'
-import {compose, lifecycle, setDisplayName, withHandlers} from 'recompose'
+import {compose, mapProps, setDisplayName, withHandlers} from 'recompose'
 import TeamGallery from "../../components/teamGallery/TeamGallery";
-import {connect} from "react-redux";
 import {nonOptimalStates} from "../../hoc/nonOptimalStates";
+import {withEntity} from "../../hoc/withEntity";
 
 const dispatchLoginAttempted = user => (
   {
@@ -12,39 +12,26 @@ const dispatchLoginAttempted = user => (
   }
 );
 
-const dispatchTeamGalleryWillMount = () => (
-  {
-    type: "TEAM_GALLERY_WILL_MOUNT",
-    meta: {remote: true}
-  }
-);
-
-const loading = (props) => props.loading;
+const loading = (props) => props.entity.loading;
 const showLoadingMessage = () => <h1>Loading...</h1>;
-
-const mapStateToProps = (state) => {
-  return {
-    loading: state.teamGallery.loading,
-    userList: state.teamGallery.userList
-  }
-};
 
 const enhance = compose(
   setDisplayName('TeamGalleryContainer'),
-  connect(mapStateToProps, {dispatchTeamGalleryWillMount, dispatchLoginAttempted}),
-  lifecycle({
-    componentWillMount() {
-      this.props.dispatchTeamGalleryWillMount();
-    }
-  }),
+  withEntity({entityKey: "user", actions: {dispatchLoginAttempted}}),
+  nonOptimalStates([
+    {when: loading, render: showLoadingMessage}
+  ]),
   withHandlers({
     userSelected: ({dispatchLoginAttempted}) => user => {
       dispatchLoginAttempted(user);
     }
   }),
-  nonOptimalStates([
-    {when: loading, render: showLoadingMessage}
-  ])
+  mapProps((ownerProps) => {
+    const {userSelected, entity} = ownerProps;
+    const {payload} = entity;
+    const userList = Object.keys(payload).map(k => payload[k]);
+    return {userList, userSelected};
+  })
 );
 
 export const TeamGalleryContainer = (props) => <TeamGallery {...props}/>;

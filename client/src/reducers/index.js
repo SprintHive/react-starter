@@ -4,21 +4,23 @@ const initialState = {
   auth: {user: null},
   user: {age: 0, dateOfBirth: "", dateOfBirthInput: ""},
   teamGallery: {loading: false, userList: null},
+  loading: {},
   entities: {}
 };
 
+export function calcKey(entityKey, entityId) {
+  let key = entityKey;
+  if (entityId) key = `${entityKey}_${entityId}`;
+  return key;
+}
+
 function handleSubscribeToEntity(state, action) {
   const ans = {...state};
-  const entities = {...state.entities};
+  const loading = {...state.loading};
   const {entityKey, entityId} = action.payload;
-  const key = `${entityKey}_${entityId}`;
-  let found = entities[key];
-  if (found) {
-    entities[key] = {...found, ...{loading: true}}
-  } else {
-    entities[key] = {...{loading: true}}
-  }
-  ans.entities = entities;
+  const key = calcKey(entityKey, entityId);
+  loading[key] = true;
+  ans.loading = loading;
   return ans;
 }
 
@@ -59,18 +61,30 @@ export default (state = initialState, action) => {
     case "ENTITY_LOADED":
     case "ENTITY_UPDATED":
       const ans = {...state};
+      const loading = {...state.loading};
       const entities = {...state.entities};
       const {entityKey, entityId} = action.source.action;
-      const key = `${entityKey}_${entityId}`;
-      let found = entities[key];
 
-      if (found) {
-        entities[key] = {...found, ...action.payload}
+      if (entityId) {
+        let found = entities[entityKey][entityId];
+        console.log(found);
+        if (found) {
+          entities[entityKey][entityId] = {...found, ...action.payload}
+        } else {
+          entities[entityKey][entityId] = {...action.payload}
+        }
       } else {
-        entities[key] = {...action.payload}
+        let found = entities[entityKey];
+        if (found) {
+          entities[entityKey] = {...found, ...action.payload}
+        } else {
+          entities[entityKey] = {...action.payload}
+        }
       }
 
-      entities[key].loading = false;
+      const key = calcKey(entityKey, entityId);
+      loading[key] = false;
+      ans.loading = loading;
       ans.entities = entities;
       return ans;
 

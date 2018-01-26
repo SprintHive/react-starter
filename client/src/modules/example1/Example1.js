@@ -8,6 +8,7 @@ import moment from "moment";
 import {dateOfBirthCaptured} from "../../components/dateOfBirthInput/DateOfBirthActions";
 import {DisplayPerson} from "../../components/displayPerson/DisplayPerson";
 import {nonOptimalStates} from "../../hoc/nonOptimalStates";
+import {withEntity} from "../../hoc/withEntity";
 
 const style = {
   container: {
@@ -15,62 +16,25 @@ const style = {
   }
 };
 
-const dispatchSubscribeToEntity = ({entityKey, entityId}) => (
-  {
-    type: "SUBSCRIBE_TO_ENTITY",
-    meta: {remote: true},
-    payload: {entityKey, entityId}
-  }
-);
-
-const dispatchUnSubscribeToEntity = ({entityKey, entityId}) => (
-  {
-    type: "UNSUBSCRIBE_FROM_ENTITY",
-    meta: {remote: true},
-    payload: {entityKey, entityId}
-  }
-);
-
-const entityConnector = ({entityKey, entityId}) => {
-  return compose(connect(state => {
-      const props = {defaultDateOfBirth: ""};
-      if (state.user.dateOfBirth) props.defaultDateOfBirth = moment(state.user.dateOfBirth).format('DD/MM/YYYY');
-      props.entity = {entityKey, entityId, payload: state[`${entityKey}_${entityId}`] || {loading: true}};
-      return props;
-    }, {dateOfBirthCaptured, dispatchSubscribeToEntity, dispatchUnSubscribeToEntity})
-  )
+const mapStateToProps = state => {
+  const props = {defaultDateOfBirth: ""};
+  if (state.user.dateOfBirth) props.defaultDateOfBirth = moment(state.user.dateOfBirth).format('DD/MM/YYYY');
+  return props;
 };
-
-const withEntitySubscription = compose(
-  lifecycle({
-    componentWillMount() {
-      const {entity, dispatchSubscribeToEntity} = this.props;
-      const {entityKey, entityId} = entity;
-      dispatchSubscribeToEntity({entityKey, entityId})
-    },
-    componentWillUnmount() {
-      const {entity, dispatchUnSubscribeToEntity} = this.props;
-      const {entityKey, entityId} = entity;
-      dispatchUnSubscribeToEntity({entityKey, entityId});
-    }
-  })
-);
 
 const enhance = compose(
   setDisplayName('Example1'),
-  entityConnector({entityKey: 'person', entityId: 2}),
-  withEntitySubscription,
+  withEntity({entityKey: "user", entityId: 2, actions: {dateOfBirthCaptured}}),
+  connect(mapStateToProps),
   withHandlers({
     done: ({dateOfBirthCaptured, entity}) => ({dateOfBirth}) => {
-      const {entityId} = entity;
-      dateOfBirthCaptured({dateOfBirth, entityId})
+      const {entityKey, entityId} = entity;
+      dateOfBirthCaptured({dateOfBirth, entityKey, entityId})
     }
   })
 );
 
-const loadingEntity = (props) => {
-  return props.payload.loading;
-};
+const loadingEntity = ({loading}) => loading;
 const enhanceDisplayEntity = compose(
   setDisplayName('DisplayEntity'),
   nonOptimalStates([

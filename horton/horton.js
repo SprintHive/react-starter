@@ -49,11 +49,10 @@ const startListeningForEntityUpdates = require('./listenForEntityUpdates');
 startListeningForEntityUpdates({subscriptionMap});
 
 app.post('/cqrs/subscribe/v1/entity/:entityKey/:entityId', (req, res) => {
-  console.log("Received a entity to subscribe to", req.params);
-  const {entityKey, entityId, } = req.params;
+  console.log("Received a entityKey and entityId to subscribe to", req.params);
+  const {entityKey, entityId} = req.params;
   const {socketId} = req.body;
-  let key = entityKey;
-  if (entityId) key = `${key}_${entityId}`;
+  let key = `${entityKey}_${entityId}`;
 
   subscriptionMap[key]
     ? !subscriptionMap[key].includes(socketId) && subscriptionMap[key].push(socketId)
@@ -67,11 +66,10 @@ app.post('/cqrs/subscribe/v1/entity/:entityKey/:entityId', (req, res) => {
 });
 
 app.post('/cqrs/unsubscribe/v1/entity/:entityKey/:entityId', (req, res) => {
-  console.log("Received a entity to unsubscribe from ", req.params);
-  const {entityKey, entityId, } = req.params;
+  console.log("Received a entityKey and entityId to unsubscribe from ", req.params);
+  const {entityKey, entityId} = req.params;
   const {socketId} = req.body;
-  let key = entityKey;
-  if (entityId) key = `${key}_${entityId}`;
+  let key = `${entityKey}_${entityId}`;
 
   if (subscriptionMap[key]) {
     const index = subscriptionMap[key].indexOf(socketId);
@@ -81,6 +79,23 @@ app.post('/cqrs/unsubscribe/v1/entity/:entityKey/:entityId', (req, res) => {
 
   console.log(subscriptionMap[key]);
   console.log(`Socket ${socketId} has un-subscribed from entity ${key}`);
+});
+
+app.post('/cqrs/subscribe/v1/entity/:entityKey/', (req, res) => {
+  console.log("Received a entity to subscribe to", req.params);
+  const {entityKey} = req.params;
+  const {socketId} = req.body;
+  let key = entityKey;
+
+  subscriptionMap[key]
+    ? !subscriptionMap[key].includes(socketId) && subscriptionMap[key].push(socketId)
+    : subscriptionMap[key] = [socketId];
+
+  axios.get(`http://localhost:3008/cqrs/read/v1/fact/${entityKey}/`)
+    .then((ans) =>  res.send(ans.data))
+    .catch(err => res.status(err.status).send({message: err.message}));
+
+  console.log(`Socket ${socketId} has been subscribed to entity ${key}`);
 });
 
 app.post('/cqrs/write/v1/fact/:entityKey/:entityId/:action', (req, res) => {

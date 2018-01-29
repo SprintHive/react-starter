@@ -19,14 +19,14 @@ function createAction(type, entityKey, entityId, payload) {
 }
 
 function createNameUpdatedAction(user) {
-  return createAction("NAME_CAPTURED", "person", user.userId, {name: user.name});
+  return createAction("NAME_CAPTURED", "user", user.userId, {name: user.name});
 }
 
 function createAvatarUrlUpdatedAction(user) {
-  return createAction("AVATAR_URL_CAPTURED", "person", user.userId, {avatarUrl: user.url});
+  return createAction("AVATAR_URL_CAPTURED", "user", user.userId, {avatarUrl: user.url});
 }
 
-module.exports = () => {
+const start = () => {
   const initialStateStream = Observable.from(Object.keys(userMap).map(k => userMap[k]));
   const nameUpdated =  initialStateStream.map(createNameUpdatedAction);
   const avatarUpdated =  initialStateStream.map(createAvatarUrlUpdatedAction);
@@ -37,10 +37,10 @@ module.exports = () => {
   );
 
   // stream.subscribe(a => console.log(a), err => console.error(err));
+  const createProducer = require('../lib/createProducer');
+  const {sendMessage} = createProducer();
 
-  const brokers = 'kafka://127.0.0.1:9092';
-  const opts = {brokers};
-  const KafkaObservable = require('kafka-observable')(opts);
-  const producer = KafkaObservable.toTopic('event-stream', stream);
-  producer.subscribe(message => console.info(message), err => console.error(err));
+  stream.subscribe(sendMessage, err => console.error(err));
 };
+
+start();

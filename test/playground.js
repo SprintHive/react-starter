@@ -27,5 +27,9 @@ function readDateOfBirth() {
 
 // readDateOfBirth();
 
-const load = require("../cqrs/loadInitialState");
-load();
+// const load = require("../cqrs/loadInitialState");
+// load();
+
+const createProducer = require('../lib/createProducer');
+const {sendMessage} = createProducer();
+console.log();

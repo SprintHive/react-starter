@@ -13,9 +13,11 @@ const axios = require('axios');
 
 const {lookupUser, listUsers} = require('./userDB');
 
-const createEventStreamProducer = require('./createEventStreamProducer');
-const {dispatch} = createEventStreamProducer();
+const createConsumer = require('../lib/createConsumer');
+const eventStream = createConsumer({globalConfig: {'group.id': 'horton'}});
 
+const createProducer = require('../lib/createProducer');
+const {sendMessage} = createProducer();
 
 // Add middleware here
 app.use(express.json());
@@ -46,7 +48,7 @@ app.get('/team', function (req, res) {
 });
 
 const startListeningForEntityUpdates = require('./listenForEntityUpdates');
-startListeningForEntityUpdates({subscriptionMap});
+startListeningForEntityUpdates({subscriptionMap, eventStream});
 
 app.post('/cqrs/subscribe/v1/entity/:entityKey/:entityId', (req, res) => {
   console.log("Received a entityKey and entityId to subscribe to", req.params);
@@ -102,7 +104,7 @@ app.post('/cqrs/write/v1/fact/:entityKey/:entityId/:action', (req, res) => {
   console.log("Received a fact to write", req.params);
   const {entityKey, entityId, action} = req.params;
   const {payload} = req.body;
-  dispatch({entityKey, entityId, type: action, payload});
+  sendMessage({entityKey, entityId, type: action, payload});
   res.send({message: "Fact has been recorded"})
 });
 

@@ -10,38 +10,29 @@ const http = require('http').Server(app);
 const cors = require('cors');
 const port = process.env.PORT || 3708;
 
-// const opts = {brokers: 'kafka://127.0.0.1:9092', groupId: "cqrs"};
+const createProducer = require('../lib/createProducer');
+const {sendMessage} = createProducer();
 
-// const connectEventStream = require('../lib/connectEventStream');
-// const {eventStream} = connectEventStream(opts);
+const createConsumer = require('../lib/createConsumer');
+const eventStream = createConsumer({consumerConfig: {replay: true}});
+
 const writeName = require('./writeName');
-const writeDob = require('./writeDateOfBirth');
 const writeAvatarUrl = require('./writeAvatarUrl');
+const writeDob = require('./writeDateOfBirth');
 const calculateAge = require('./calculateAge');
 
 // Add middleware here
 app.use(express.json());
 app.use(cors());
 
-const state = {
-  user: {
-    1: {userId: 1,avatarUrl: "/avatars/DT-Avatar.png", name: "Dale"},
-    2: {userId: 2,avatarUrl: "/avatars/DLR-Avatar.png", name: "Dirk"},
-    3: {userId: 3,avatarUrl: "/avatars/GK-Avatar.png", name: "Greg"},
-    4: {userId: 4,avatarUrl: "/avatars/JLL-Avatar.png", name: "Jon"},
-    5: {userId: 5,avatarUrl: "/avatars/DB-Avatar.png", name: "Dane"},
-    6: {userId: 6,avatarUrl: "/avatars/SL-Avatar.png", name: "Sam"},
-    7: {userId: 7,avatarUrl: "/avatars/JZ-Avatar.png", name: "JZ"},
-    8: {userId: 8,avatarUrl: "/avatars/TJ-Avatar.png", name: "Trevor"},
-    9: {userId: 9,avatarUrl: "/avatars/NE-Avatar.png", name: "Nic"},
-    10: {userId: 10,"avatarUrl": "/avatars/MT-Avatar.png", name: "Marco"}
-  }
-};
+const state = {};
 
-writeName({state});
-writeAvatarUrl({state});
-writeDob({state});
-calculateAge({state});
+const reducerConfig = {state, eventStream, sendMessage};
+
+writeName(reducerConfig);
+writeAvatarUrl(reducerConfig);
+writeDob(reducerConfig);
+calculateAge(reducerConfig);
 
 app.get('/ping', function (req, res) {
   res.send("hello")
@@ -73,6 +64,3 @@ const server = http.listen(port, () => {
   const port = server.address().port;
   console.log(`Http server listening at http://localhost:${port}`);
 });
-
-// const loadInitialState = require('./loadInitialState');
-// loadInitialState();

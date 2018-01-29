@@ -1,22 +1,15 @@
-/**
- * Listen to a kafka topic and write data to state
- */
-function send(KafkaObservable, action) {
-  const producer = KafkaObservable.toTopic('event-stream', action);
-  producer.subscribe(message => console.info(message), err => console.error(err));
-}
 
-const brokers = 'kafka://127.0.0.1:9093';
-module.exports = ({state, opts = {brokers, groupId: "write-avatar-url"}}) => {
-  const KafkaObservable = require('kafka-observable')(opts);
-
-  KafkaObservable.fromTopic('event-stream')
-    .let(KafkaObservable.JSONMessage())
-    .filter(message => message.type === "AVATAR_URL_CAPTURED")
+module.exports = ({state, eventStream, sendMessage}) => {
+  eventStream
+    .filter(({value}) => value.type === "AVATAR_URL_CAPTURED")
     .subscribe(message => {
       console.info("write-avatar-url: Received a message from the event stream", message);
-      const {entityKey, entityId, type, payload} = message;
+      const {entityKey, entityId, type, payload} = message.value;
       const {avatarUrl} = payload;
+
+      // ensure entity exists on the state object
+      if (!state[entityKey]) state[entityKey] = {};
+
       let found = state[entityKey][entityId];
       if (found) {
         found.avatarUrl = avatarUrl
@@ -29,6 +22,6 @@ module.exports = ({state, opts = {brokers, groupId: "write-avatar-url"}}) => {
         action: {entityKey, entityId, type}
       };
 
-      send(KafkaObservable, {type: "ENTITY_UPDATED", payload: {avatarUrl}, source})
+      sendMessage({type: "ENTITY_UPDATED", payload: {avatarUrl}, source})
     });
 };

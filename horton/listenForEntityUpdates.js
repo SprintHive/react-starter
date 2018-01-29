@@ -1,15 +1,25 @@
 const {Observable} = require("rxjs");
 const axios = require('axios');
-const brokers = 'kafka://127.0.0.1:9092';
 
-module.exports = ({subscriptionMap}) => {
-  const opts = {brokers: brokers, groupId: "horton"};
-  const KafkaObservable = require('kafka-observable')(opts);
-  const entityUpdatedStream = KafkaObservable.fromTopic('event-stream')
-    .let(KafkaObservable.JSONMessage())
-    .filter(message => message.type === "ENTITY_UPDATED");
+module.exports = ({subscriptionMap, eventStream}) => {
+  eventStream
+    .filter(({value}) => value.type === "ENTITY_UPDATED")
+    .map(message => {
+      const {source} = message.value;
+      const {entityKey, entityId} = source.action;
+      message.value.source.action.key = `${entityKey}_${entityId}`;
+      return message;
+    })
+    .filter(message => {
+      const {source} = message.value;
+      const {key} = source.action;
 
-  entityUpdatedStream
+      if (!subscriptionMap[key]) {
+        console.log(`Not sending message to BFF because there is no subscribers for entity ${key}`);
+      }
+
+      return subscriptionMap[key]
+    })
     .mergeMap(sendMessageToBFF)
     .subscribe(message => {
       console.log(message)
@@ -17,9 +27,8 @@ module.exports = ({subscriptionMap}) => {
 
   function sendMessageToBFF(message) {
     console.info("Received a message from the event stream", message);
-    const {payload, source} = message;
-    const {entityKey, entityId} = source.action;
-    const key = `${entityKey}_${entityId}`;
+    const {payload, source} = message.value;
+    const {key} = source.action;
     const socketId = subscriptionMap[key];
 
     const params = {

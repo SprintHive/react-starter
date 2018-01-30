@@ -81,6 +81,7 @@ app.post('/cqrs/unsubscribe/v1/entity/:entityKey/:entityId', (req, res) => {
 
   console.log(subscriptionMap[key]);
   console.log(`Socket ${socketId} has un-subscribed from entity ${key}`);
+  res.send({message: `Socket ${socketId} has un-subscribed from entity ${key}`})
 });
 
 app.post('/cqrs/subscribe/v1/entity/:entityKey/', (req, res) => {
@@ -114,6 +115,7 @@ app.post('/cqrs/unsubscribe/v1/entity/:entityKey/', (req, res) => {
 
   console.log(subscriptionMap[key]);
   console.log(`Socket ${socketId} has un-subscribed from entity ${key}`);
+  res.send(`Socket ${socketId} has un-subscribed from entity ${key}`);
 });
 
 app.post('/cqrs/write/v1/fact/:entityKey/:entityId/:action', (req, res) => {

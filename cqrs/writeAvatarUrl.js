@@ -1,5 +1,5 @@
 
-module.exports = ({state, eventStream, sendMessage}) => {
+module.exports = ({state, eventStream, sendMessage, offset}) => {
   eventStream
     .filter(({value}) => value.type === "AVATAR_URL_CAPTURED")
     .subscribe(message => {
@@ -22,6 +22,6 @@ module.exports = ({state, eventStream, sendMessage}) => {
         action: {entityKey, entityId, type}
       };
 
-      sendMessage({type: "ENTITY_UPDATED", payload: {avatarUrl}, source})
+      message.offset > offset && sendMessage({type: "ENTITY_UPDATED", payload: {avatarUrl}, source})
     });
 };

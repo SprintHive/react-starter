@@ -10,30 +10,35 @@ const port = process.env.PORT || 3708;
 const createProducer = require('../lib/createProducer');
 const {sendMessage} = createProducer({streamOptions: {topic: process.env.messageTopic}});
 
-const createConsumer = require('../lib/createConsumer');
-const eventStream = createConsumer({consumerConfig: {replay: true}});
+const {manageOffset, getOffset} = require('./manageOffset');
 
-const signIn = require('./signIn');
-const writeName = require('./writeName');
-const writePassword = require('./writePassword');
-const writeAvatarUrl = require('./writeAvatarUrl');
-const writeDob = require('./writeDateOfBirth');
-const calculateAge = require('./calculateAge');
+const state = {};
+
+getOffset.subscribe((offset) => {
+  const createConsumer = require('../lib/createConsumer');
+  const eventStream = createConsumer({consumerConfig: {replay: true}});
+  manageOffset(eventStream);
+  const signIn = require('./signIn');
+  const writeName = require('./writeName');
+  const writePassword = require('./writePassword');
+  const writeAvatarUrl = require('./writeAvatarUrl');
+  const writeDob = require('./writeDateOfBirth');
+  const calculateAge = require('./calculateAge');
+
+  const reducerConfig = {state, eventStream, sendMessage, offset};
+
+  signIn(reducerConfig);
+  writeName(reducerConfig);
+  writePassword(reducerConfig);
+  writeAvatarUrl(reducerConfig);
+  writeDob(reducerConfig);
+  calculateAge(reducerConfig);
+});
 
 // Add middleware here
 app.use(express.json());
 app.use(cors());
 
-const state = {};
-
-const reducerConfig = {state, eventStream, sendMessage};
-
-signIn(reducerConfig);
-writeName(reducerConfig);
-writePassword(reducerConfig);
-writeAvatarUrl(reducerConfig);
-writeDob(reducerConfig);
-calculateAge(reducerConfig);
 
 app.get('/ping', function (req, res) {
   res.send("hello")

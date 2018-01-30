@@ -11,11 +11,11 @@ const lookupUserByName = ({state, username}) => {
   return userArray.length > 0 ? userArray[0] : undefined;
 };
 
-module.exports = ({state, eventStream, sendMessage}) => {
+module.exports = ({state, eventStream, sendMessage, offset}) => {
   const lookupTheUsers = eventStream
+    .filter(message => message.offset > offset)
     .filter(({value}) => value.type === "SIGN_IN_ATTEMPTED")
     .filter(message => message.value.payload)
-    .do(console.log)
     .map(message => {
       message.value.userFromDB = lookupUserByName({state, username: message.value.payload.username});
       return message;

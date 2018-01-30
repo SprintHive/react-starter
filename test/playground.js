@@ -32,15 +32,10 @@ function readDateOfBirth() {
 // const load = require("../cqrs/loadInitialState");
 // load();
 
-const createProducer = require('../lib/createProducer');
-const {sendMessage} = createProducer();
-sendMessage({
-  type: "SIGN_IN_ATTEMPTED",
-  entityKey: 'signIn',
-  entityId: '1h6nSjZCnuaTnD3LAAAB',
-  payload: {
-    username: 'jon',
-    password: 'password'
-  }
+const createConsumer = require('../lib/createConsumer');
+const eventStream = createConsumer({
+  globalConfig: {'group.id': 'test'},
+  streamOptions: {topics: process.env.messageTopic}
 });
-// console.log();
+
+eventStream.subscribe(console.log);

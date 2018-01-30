@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-module.exports = ({state, eventStream, sendMessage}) => {
+module.exports = ({state, eventStream, sendMessage, offset}) => {
   eventStream
     .filter(({value}) => value.type === "DATE_OF_BIRTH_CAPTURED")
     .subscribe(message => {
@@ -24,6 +24,6 @@ module.exports = ({state, eventStream, sendMessage}) => {
         action: {entityKey, entityId, type}
       };
 
-      sendMessage({type: "AGE_CALCULATED", payload: {age}, source});
+      message.offset > offset && sendMessage({type: "AGE_CALCULATED", payload: {age}, source});
     });
 };

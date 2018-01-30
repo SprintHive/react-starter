@@ -1,6 +1,6 @@
 
 
-module.exports = ({state, eventStream, sendMessage}) => {
+module.exports = ({state, eventStream, sendMessage, offset}) => {
   eventStream
     .filter(({value}) => value.type === "PASSWORD_CAPTURED")
     .subscribe(message => {
@@ -23,6 +23,6 @@ module.exports = ({state, eventStream, sendMessage}) => {
         action: {entityKey, entityId, type}
       };
 
-      sendMessage({type: "ENTITY_UPDATED", payload: {passwordHashed}, source});
+      message.offset > offset && sendMessage({type: "ENTITY_UPDATED", payload: {passwordHashed}, source});
     });
 };

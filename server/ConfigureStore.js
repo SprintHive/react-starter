@@ -138,7 +138,7 @@ const unsubscribeFromEntity = (action$) => {
           const {status, data} = err.response;
           console.error("Something went wrong un-subscribing to an entity", status, data)
         } else {
-          console.error("Something went wrong un-subscribing to an entity")
+          console.error("Something went wrong un-subscribing to an entity", entityKey)
         }
       });
 

@@ -25,7 +25,7 @@ const httpActionConnector = ({io}) => (req, res) => {
         return acc;
       }, [])
       .subscribe(
-        ans => res.status(201).send({message: "OK"}),
+        ans => res.status(201).send({message: `Dispatched message to socket`}),
         err => res.status(400).send({message: "Could not send "}),
         () => console.log("Complete"));
   }

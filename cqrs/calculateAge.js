@@ -24,6 +24,6 @@ module.exports = ({state, eventStream, sendMessage}) => {
         action: {entityKey, entityId, type}
       };
 
-      sendMessage({type: "ENTITY_UPDATED", payload: {age}, source});
+      sendMessage({type: "AGE_CALCULATED", payload: {age}, source});
     });
 };

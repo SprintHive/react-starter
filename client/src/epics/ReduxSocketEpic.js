@@ -2,22 +2,20 @@ import {Subject, Observable} from "rxjs";
 import {socketConnectionStatusChanged} from "../modules/socketio/actions";
 
 export function socketStatus(action$, store, {socket}) {
-
   const subject = new Subject();
   socket.on('connect', () => {
-    subject.next(socketConnectionStatusChanged({status: 'Connected'}));
+    subject.next(socketConnectionStatusChanged({status: 'Connected', socketId: socket.id}));
   });
 
   socket.on('disconnect', () => {
-    subject.next(socketConnectionStatusChanged({status: 'Disconnected' }));
+    subject.next(socketConnectionStatusChanged({status: 'Disconnected', socketId: undefined}));
   });
 
   socket.on('reconnecting', () => {
-    subject.next(socketConnectionStatusChanged({status: 'Reconnecting'}));
+    subject.next(socketConnectionStatusChanged({status: 'Reconnecting', socketId: undefined}));
   });
 
   socket.on('actions', action => {
-    console.log("Action received from server", action);
     subject.next(action);
   });
   return subject;

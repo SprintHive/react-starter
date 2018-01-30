@@ -1,26 +1,11 @@
 const {Observable} = require("rxjs");
 const axios = require('axios');
 
-module.exports = ({subscriptionMap, eventStream}) => {
+module.exports = ({eventStream}) => {
   eventStream
-    .filter(({value}) =>
-      value.type === "ENTITY_UPDATED" || value.type === "AGE_CALCULATED"
-    ).map(message => {
-      const {source} = message.value;
-      const {entityKey, entityId} = source.action;
-      message.value.source.key = `${entityKey}_${entityId}`;
-      return message;
-    })
-    .filter(message => {
-      const {source} = message.value;
-      const {key} = source;
-
-      if (!subscriptionMap[key]) {
-        console.log(`Not sending message to BFF because there is no subscribers for entity ${key}`);
-      }
-
-      return subscriptionMap[key]
-    })
+    .do((message) => console.log("Received a SIGN_IN_SUCCESSFUL message", JSON.stringify(message, null, 2)))
+    .filter(({value}) => value.type === "SIGN_IN_SUCCESSFUL")
+    // todo add a filter here to see if there is a socket connected with for this socket id
     .mergeMap(sendMessageToBFF)
     .subscribe(message => {
       console.log(message)
@@ -29,11 +14,10 @@ module.exports = ({subscriptionMap, eventStream}) => {
   function sendMessageToBFF(message) {
     console.info("Received a message from the event stream", message);
     const {payload, source, type} = message.value;
-    const {key} = source;
-    const socketId = subscriptionMap[key];
+    const {entityId} = source.action;
 
     const params = {
-      socketId,
+      socketId: entityId,
       action: {type, payload, source}
     };
 

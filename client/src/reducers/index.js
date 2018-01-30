@@ -2,8 +2,6 @@
 const initialState = {
   connection: {status: "connecting", timeConnected: undefined},
   auth: {user: null},
-  user: {age: 0, dateOfBirth: "", dateOfBirthInput: ""},
-  teamGallery: {loading: false, userList: null},
   loading: {},
   entities: {}
 };
@@ -28,26 +26,16 @@ function handleSubscribeToEntity(state, action) {
 export default (state = initialState, action) => {
   switch (action.type) {
 
-    case "TEAM_GALLERY_WILL_MOUNT":
-      return {...state, teamGallery: {loading: true}};
-
-    case "TEAM_GALLERY_LOADED":
-      return {...state, teamGallery: {loading: false, userList: action.payload}};
-
     case "SOCKET_CONNECTION_STATUS_CHANGED_ACTION":
-      const {status} = action.payload;
-      const connection = {status};
+      const {status, socketId} = action.payload;
+      const connection = {status, socketId};
       if (status === 'Connected') connection.timeConnected = Date.now();
       return {...state, connection};
 
     case "USER_LOGGED_IN":
-      return {...state, auth: {...state.auth, ...action.payload}};
+    case "SIGN_IN_SUCCESSFUL":
+      return {...state, auth: {...state.auth, user: {...action.payload}}};
 
-    case "DATE_OF_BIRTH_UPDATED":
-    case "DATE_OF_BIRTH_CAPTURED":
-    case "AGE_CALCULATED":
-      return {...state, user: {...state.user, ...action.payload}};
-    
     case "SIGN_OUT_ATTEMPT":
       return {...state,
         auth: {user: null},
@@ -60,6 +48,7 @@ export default (state = initialState, action) => {
 
     case "ENTITY_LOADED":
     case "ENTITY_UPDATED":
+    case "AGE_CALCULATED":
       const ans = {...state};
       const loading = {...state.loading};
       const entities = {...state.entities};
@@ -67,7 +56,6 @@ export default (state = initialState, action) => {
 
       if (entityId) {
         let found = entities[entityKey][entityId];
-        console.log(found);
         if (found) {
           entities[entityKey][entityId] = {...found, ...action.payload}
         } else {

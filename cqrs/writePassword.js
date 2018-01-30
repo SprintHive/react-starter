@@ -1,30 +1,28 @@
 
 
 module.exports = ({state, eventStream, sendMessage}) => {
-
   eventStream
-    .filter(({value}) => value.type === "NAME_CAPTURED")
+    .filter(({value}) => value.type === "PASSWORD_CAPTURED")
     .subscribe(message => {
-      console.info("write-name: Received a message from the event stream", message);
+      console.info("write-password: Received a message from the event stream", message);
       const {entityKey, entityId, type, payload} = message.value;
-      const {name} = payload;
+      const {passwordHashed} = payload;
 
       // ensure entity exists on the state object
       if (!state[entityKey]) state[entityKey] = {};
 
       let found = state[entityKey][entityId];
       if (found) {
-        found.name = name
+        found.passwordHashed = passwordHashed
       } else {
         state[entityKey][entityId] = {name}
       }
 
       const source = {
-        service: {name: "write-name"},
+        service: {name: "write-password"},
         action: {entityKey, entityId, type}
       };
 
-      //todo this must not be on the event-stream but a message-steam instead.
-      sendMessage({type: "ENTITY_UPDATED", payload: {name}, source});
+      sendMessage({type: "ENTITY_UPDATED", payload: {passwordHashed}, source});
     });
 };

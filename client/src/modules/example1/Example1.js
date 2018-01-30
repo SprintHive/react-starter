@@ -1,9 +1,8 @@
 import React from 'react'
-import {compose, renderNothing, setDisplayName, withHandlers} from 'recompose'
+import {compose, renderNothing, setDisplayName, withHandlers, withProps} from 'recompose'
 import DateOfBirthInput from "../../components/dateOfBirthInput/DateOfBirthInput";
 import FlexBox from "../../components/FlexBox";
 import DisplayAge from "../../components/DisplayAge";
-import {connect} from "react-redux";
 import moment from "moment";
 import {dateOfBirthCaptured} from "../../components/dateOfBirthInput/DateOfBirthActions";
 import {DisplayPerson} from "../../components/displayPerson/DisplayPerson";
@@ -16,16 +15,16 @@ const style = {
   }
 };
 
-const mapStateToProps = state => {
-  const props = {defaultDateOfBirth: ""};
-  if (state.user.dateOfBirth) props.defaultDateOfBirth = moment(state.user.dateOfBirth).format('DD/MM/YYYY');
-  return props;
-};
-
 const enhance = compose(
   setDisplayName('Example1'),
   withEntity({entityKey: "user", entityId: 2, actions: {dateOfBirthCaptured}}),
-  connect(mapStateToProps),
+  withProps(props => {
+    let defaultDateOfBirth = "";
+    if (props.entity.payload && props.entity.payload.dateOfBirth) {
+      defaultDateOfBirth = moment(props.entity.payload.dateOfBirth).format('DD/MM/YYYY');
+    }
+    return {defaultDateOfBirth}
+  }),
   withHandlers({
     done: ({dateOfBirthCaptured, entity}) => ({dateOfBirth}) => {
       const {entityKey, entityId} = entity;

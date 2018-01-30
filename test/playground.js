@@ -20,10 +20,12 @@ Observable.fromPromise(axios.post("http://localhost:3007/login", params))
 // console.log(moment().format("DD/MM/YYYY"));
 
 
+/*
 function readDateOfBirth() {
   Observable.fromPromise(axios.get("http://localhost:7002/cqrs/read/dob/v1/person/2"))
     .subscribe(ans => console.log(JSON.stringify(ans.data, null, 2)));
 }
+*/
 
 // readDateOfBirth();
 
@@ -32,4 +34,13 @@ function readDateOfBirth() {
 
 const createProducer = require('../lib/createProducer');
 const {sendMessage} = createProducer();
-console.log();
+sendMessage({
+  type: "SIGN_IN_ATTEMPTED",
+  entityKey: 'signIn',
+  entityId: '1h6nSjZCnuaTnD3LAAAB',
+  payload: {
+    username: 'jon',
+    password: 'password'
+  }
+});
+// console.log();

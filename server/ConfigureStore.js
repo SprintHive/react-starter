@@ -54,34 +54,18 @@ const sendActionsFromServerToSockets = (action$, store, {io}) => {
 };
 
 const signIn = (action$) => {
-  const loginAttempted = action$.ofType("LOGIN_ATTEMPTED")
+  return action$.ofType("SIGN_IN_ATTEMPTED")
     .switchMap(action => {
       console.log(`Processing action ${action.type} ${JSON.stringify(action.payload, null, 2)}`);
       const socketId = action.meta.socketId;
       const user = action.payload;
-      const params = {username: user.name, password: "password", socketId};
-      return Observable.fromPromise(axios.post("http://localhost:3007/login", params))
-        .map(({data}) => ({
-          type: "USER_LOGGED_IN",
-          meta: {
-            socketId,
-            fromServer: true
-          },
-          payload: {user: data}
-        }));
+      const params = {payload: {username: user.name, password: "password$123"}, socketId};
+      return Observable.fromPromise(axios.post(
+        `http://localhost:3007/cqrs/write/v1/fact/signin/${socketId}/SIGN_IN_ATTEMPTED`,
+        params))
+        .mergeMap(() => Observable.empty());
     });
-
-  const usernameCaptured = action$.ofType("USERNAME_CAPTURED")
-    .switchMap(action => {
-      console.log(`Processing action ${action.type}`);
-      const socketId = action.meta.socketId;
-      const user = {userId: 1, name: "Jon", password: 'password', url: "/avatars/jll-avatar.png"};
-      return Observable.of({type: "USER_LOGGED_IN", meta: {socketId, fromServer: true}, payload: {user}});
-    });
-
-  return Observable.merge(loginAttempted, usernameCaptured);
 };
-
 
 const signOut = (action$) => {
   return action$.ofType("SIGN_OUT_ATTEMPT")
@@ -152,9 +136,9 @@ const unsubscribeFromEntity = (action$) => {
       axios.post(endpoint, params).then(ans => console.log(ans.data)).catch(err => {
         if (err.response) {
           const {status, data} = err.response;
-          console.error("Something went wrong subscribing to an entity", status, data)
+          console.error("Something went wrong un-subscribing to an entity", status, data)
         } else {
-          console.error("Something went wrong subscribing to an entity")
+          console.error("Something went wrong un-subscribing to an entity")
         }
       });
 

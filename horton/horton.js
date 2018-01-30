@@ -2,8 +2,8 @@
 
 /**
  * This is a mocked out api gateway to manage auth and socket management.
-*/
-
+ */
+require('dotenv').config();
 const express = require("express");
 const app = express();
 const http = require('http').Server(app);
@@ -11,10 +11,11 @@ const cors = require('cors');
 const port = process.env.PORT || 3702;
 const axios = require('axios');
 
-const {lookupUser, listUsers} = require('./userDB');
-
 const createConsumer = require('../lib/createConsumer');
-const eventStream = createConsumer({globalConfig: {'group.id': 'horton'}});
+const eventStream = createConsumer({
+  globalConfig: {'group.id': 'horton'},
+  streamOptions: {topics: process.env.messageTopic}
+});
 
 const createProducer = require('../lib/createProducer');
 const {sendMessage} = createProducer();
@@ -43,12 +44,11 @@ app.get('/subscriptions', function (req, res) {
   res.send(subscriptionMap)
 });
 
-app.get('/team', function (req, res) {
-  res.send(listUsers())
-});
-
 const startListeningForEntityUpdates = require('./listenForEntityUpdates');
 startListeningForEntityUpdates({subscriptionMap, eventStream});
+
+const startListenForSuccessFullSignIns = require('./listenForSuccessFullSignIn');
+startListenForSuccessFullSignIns({eventStream});
 
 app.post('/cqrs/subscribe/v1/entity/:entityKey/:entityId', (req, res) => {
   console.log("Received a entityKey and entityId to subscribe to", req.params);
@@ -61,7 +61,7 @@ app.post('/cqrs/subscribe/v1/entity/:entityKey/:entityId', (req, res) => {
     : subscriptionMap[key] = [socketId];
 
   axios.get(`http://localhost:3008/cqrs/read/v1/fact/${entityKey}/${entityId}`)
-    .then((ans) =>  res.send(ans.data))
+    .then((ans) => res.send(ans.data))
     .catch(err => res.status(err.status).send({message: err.message}));
 
   console.log(`Socket ${socketId} has been subscribed to entity ${key}`);
@@ -84,7 +84,7 @@ app.post('/cqrs/unsubscribe/v1/entity/:entityKey/:entityId', (req, res) => {
 });
 
 app.post('/cqrs/subscribe/v1/entity/:entityKey/', (req, res) => {
-  console.log("Received a entity to subscribe to", req.params);
+  console.log("Received a entityKey to subscribe to", req.params);
   const {entityKey} = req.params;
   const {socketId} = req.body;
   let key = entityKey;
@@ -94,10 +94,26 @@ app.post('/cqrs/subscribe/v1/entity/:entityKey/', (req, res) => {
     : subscriptionMap[key] = [socketId];
 
   axios.get(`http://localhost:3008/cqrs/read/v1/fact/${entityKey}/`)
-    .then((ans) =>  res.send(ans.data))
+    .then((ans) => res.send(ans.data))
     .catch(err => res.status(err.status).send({message: err.message}));
 
   console.log(`Socket ${socketId} has been subscribed to entity ${key}`);
+});
+
+app.post('/cqrs/unsubscribe/v1/entity/:entityKey/', (req, res) => {
+  console.log("Received a entityKey to unsubscribe from ", req.params);
+  const {entityKey} = req.params;
+  const {socketId} = req.body;
+  let key = entityKey;
+
+  if (subscriptionMap[key]) {
+    const index = subscriptionMap[key].indexOf(socketId);
+    console.log(index, subscriptionMap[key]);
+    if (index > -1) subscriptionMap[key].splice(index, 1);
+  }
+
+  console.log(subscriptionMap[key]);
+  console.log(`Socket ${socketId} has un-subscribed from entity ${key}`);
 });
 
 app.post('/cqrs/write/v1/fact/:entityKey/:entityId/:action', (req, res) => {
@@ -111,26 +127,15 @@ app.post('/cqrs/write/v1/fact/:entityKey/:entityId/:action', (req, res) => {
 app.get('/cqrs/read/v1/fact/:entityKey/:entityId', function (req, res) {
   const {entityKey, entityId} = req.params;
   axios.get(`http://localhost:3008/cqrs/read/v1/fact/${entityKey}/${entityId}`)
-    .then((ans) =>  res.send(ans.data))
+    .then((ans) => res.send(ans.data))
     .catch(err => res.status(err.status).send({message: err.message}))
 });
 
 app.get('/cqrs/read/v1/fact/:entityKey', function (req, res) {
   const {entityKey} = req.params;
   axios.get(`http://localhost:3008/cqrs/read/v1/fact/${entityKey}`)
-    .then((ans) =>  res.send(ans.data))
+    .then((ans) => res.send(ans.data))
     .catch(err => res.status(err.status).send({message: err.message}))
-});
-
-app.post('/login', (req, res) => {
-  console.log('login', req.body);
-  const {username, password, socketId} = req.body;
-  const found = lookupUser(username);
-
-  socketMap[socketId] = found;
-  userMap[found.userId] = socketId;
-
-  res.send(found);
 });
 
 app.post('/logout', (req, res) => {

@@ -6,7 +6,7 @@ import {withEntity} from "../../hoc/withEntity";
 
 const dispatchLoginAttempted = user => (
   {
-    type: "LOGIN_ATTEMPTED",
+    type: "SIGN_IN_ATTEMPTED",
     meta: {remote: true},
     payload: user
   }

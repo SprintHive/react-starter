@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 
-/**
- * A in memory implementation of CQRS
- */
-
+require('dotenv').config();
 const express = require("express");
 const app = express();
 const http = require('http').Server(app);
@@ -11,12 +8,14 @@ const cors = require('cors');
 const port = process.env.PORT || 3708;
 
 const createProducer = require('../lib/createProducer');
-const {sendMessage} = createProducer();
+const {sendMessage} = createProducer({streamOptions: {topic: process.env.messageTopic}});
 
 const createConsumer = require('../lib/createConsumer');
 const eventStream = createConsumer({consumerConfig: {replay: true}});
 
+const signIn = require('./signIn');
 const writeName = require('./writeName');
+const writePassword = require('./writePassword');
 const writeAvatarUrl = require('./writeAvatarUrl');
 const writeDob = require('./writeDateOfBirth');
 const calculateAge = require('./calculateAge');
@@ -29,7 +28,9 @@ const state = {};
 
 const reducerConfig = {state, eventStream, sendMessage};
 
+signIn(reducerConfig);
 writeName(reducerConfig);
+writePassword(reducerConfig);
 writeAvatarUrl(reducerConfig);
 writeDob(reducerConfig);
 calculateAge(reducerConfig);

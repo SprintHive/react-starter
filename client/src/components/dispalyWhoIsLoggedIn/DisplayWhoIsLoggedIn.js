@@ -37,14 +37,14 @@ const enhance = compose(
   ])
 );
 
-const Avatar = ({url}) => <img style={style.img} src={url} alt="Profile Pic"/>
+const Avatar = ({url}) => <img style={style.img} src={url} alt="Profile Pic"/>;
 
 export const DisplayWhoIsLoggedIn = ({loggedInUser}) => {
 
   return (
     <FlexBox style={style.container}>
       <FlexBox style={style.avatarContainer} item>
-        <Avatar url={loggedInUser.url}/>
+        <Avatar url={loggedInUser.avatarUrl}/>
       </FlexBox>
       <FlexBox style={style.nameContainer} centered item>
         <span>{loggedInUser.name}</span>

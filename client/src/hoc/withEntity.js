@@ -3,7 +3,7 @@ import {compose, lifecycle} from "recompose";
 import {connect} from "react-redux";
 import {calcKey} from "../reducers/index";
 
-const dispatchSubscribeToEntity = ({entityKey, entityId}) => (
+export const dispatchSubscribeToEntity = ({entityKey, entityId}) => (
   {
     type: "SUBSCRIBE_TO_ENTITY",
     meta: {remote: true},
@@ -11,7 +11,7 @@ const dispatchSubscribeToEntity = ({entityKey, entityId}) => (
   }
 );
 
-const dispatchUnSubscribeToEntity = ({entityKey, entityId}) => (
+export const dispatchUnSubscribeToEntity = ({entityKey, entityId}) => (
   {
     type: "UNSUBSCRIBE_FROM_ENTITY",
     meta: {remote: true},
@@ -23,7 +23,6 @@ const getEntity = ({state, entityKey, entityId}) =>
   entityId
     ? state.entities[entityKey][entityId]
     : state.entities[entityKey];
-
 
 export const withEntity = ({entityKey, entityId, actions}) => compose(
   connect((state) => {

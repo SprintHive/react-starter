@@ -108,9 +108,7 @@ app.post('/cqrs/unsubscribe/v1/entity/:entityKey/', (req, res) => {
   let key = entityKey;
 
   if (subscriptionMap[key]) {
-    const index = subscriptionMap[key].indexOf(socketId);
-    console.log(index, subscriptionMap[key]);
-    if (index > -1) subscriptionMap[key].splice(index, 1);
+    remove(socketId, subscriptionMap[key]);
   }
 
   console.log(subscriptionMap[key]);
@@ -151,6 +149,29 @@ app.post('/logout', (req, res) => {
   res.send({message: `${username} has been logged out`});
 });
 
+
+// remove a value from an array
+function remove(value, array) {
+  const i = array.indexOf(value);
+  i > -1 && array.splice(i, 1);
+}
+
+function cleanUpSubscriptions(socketId, subscriptionMap) {
+  Object.keys(subscriptionMap)
+    .map(k => subscriptionMap[k])
+    .forEach(array => remove(socketId, array));
+}
+
+app.post('/socket/disconnect', (req, res) => {
+  console.log('socket disconnect ', req.body);
+  const {socketId} = req.body;
+  const found = socketMap[socketId];
+
+  found && delete userMap[found.userId];
+  delete socketMap[socketId];
+  cleanUpSubscriptions(socketId, subscriptionMap);
+  res.send({message: `Socket ${socketId} has been disconnected`});
+});
 
 const server = http.listen(port, () => {
   const port = server.address().port;

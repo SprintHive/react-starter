@@ -38,6 +38,15 @@ const dispatchActionsToRedux = (action$, store, {io}) => {
       action.meta.socketId = socket.id;
       subject.next(action);
     });
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected", socket.id);
+      axios.post(
+        `http://localhost:3007/socket/disconnect`,
+        {socketId: socket.id})
+        .then(result => console.log(result.data))
+        .catch(error => console.error(`Could not disconnect socket ${socket.id}`))
+    });
   });
 
   return subject;

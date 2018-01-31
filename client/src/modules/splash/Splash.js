@@ -8,6 +8,7 @@ let dispose = undefined;
 
 const potentialFunFacts = [
   {subTitle: "Did you know:", message: "Koala bears have 2 thumbs..."},
+  {subTitle: "Fun fact:", message: "Ordering is not preserved across Kafka partitions."},
 ];
 
 const showForAtLeastOneSecond = compose(

@@ -7,8 +7,8 @@ client.on('error', console.error);
 const offsetKey = "cqrs::offset";
 
 function setOffset(offset) {
+  console.debug(`Setting offset to ${offset} in redis`);
   client.set(offsetKey, `${offset}`);
-
 }
 
 module.exports = {setOffset};
@@ -28,9 +28,7 @@ module.exports.manageOffset = (eventStream) => {
   eventStream
     .debounceTime(200)
     .do(({offset}) => setOffset(offset))
-    .subscribe((message) => {
-      console.log(message.offset);
-    })
+    .subscribe()
 };
 
 module.exports.quit = () => {

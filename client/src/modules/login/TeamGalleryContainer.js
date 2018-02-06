@@ -23,7 +23,8 @@ const enhance = compose(
   ]),
   withHandlers({
     userSelected: ({dispatchLoginAttempted}) => user => {
-      dispatchLoginAttempted(user);
+      user.password = 'password$123'; // fake the password
+      dispatchLoginAttempted({user});
     }
   }),
   mapProps((ownerProps) => {

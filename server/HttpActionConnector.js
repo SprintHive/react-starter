@@ -5,20 +5,20 @@ const {Observable} = require('rxjs');
 
 const httpActionConnector = ({io}) => (req, res) => {
   console.log("Dispatcher received a request", JSON.stringify(req.body, null, 2));
-  const {socketId, action} = req.body;
+  const {socketIds, socketId, action} = req.body;
   action.meta = {fromServer: true};
 
-  if (!socketId) {
+  let sockets = [];
+  if (socketIds && Array.isArray(socketIds)) {
+    sockets = sockets.concat(socketIds)
+  }
+
+  socketId && sockets.push(socketId);
+
+  if (sockets.length === 0) {
     res.status(404).send({message: "Bad Request no socketId"})
   } else {
-    let socketStream;
-    if (Array.isArray(socketId)) {
-      socketStream = Observable.from(socketId)
-    } else {
-      socketStream = Observable.of(socketId)
-    }
-
-    socketStream
+    Observable.from(sockets)
       .do(s => io.to(s).emit('actions', action))
       .reduce((acc, s) => {
         acc.push(s);

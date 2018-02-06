@@ -28,7 +28,7 @@ const enhance = compose(
   withHandlers({
     done: ({dateOfBirthCaptured, entity}) => ({dateOfBirth}) => {
       const {entityKey, entityId} = entity;
-      dateOfBirthCaptured({dateOfBirth, entityKey, entityId})
+      dateOfBirthCaptured(entityKey, entityId, {dateOfBirth})
     }
   })
 );

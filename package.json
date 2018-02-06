@@ -6,19 +6,24 @@
   "scripts": {
     "client": "node start-client.js",
     "build-client": "node build-client.js",
-    "server": "DEBUG=sprinthive:* PORT=3006 node server/server.js ",
-    "server-w": "DEBUG=sprinthive:* PORT=3006 nodemon server/server.js ",
-    "horton": "DEBUG=sprinthive:* PORT=3007 node horton/horton.js ",
-    "horton-w": "DEBUG=sprinthive:* PORT=3007 nodemon horton/horton.js ",
-    "cqrs": "DEBUG=sprinthive:* PORT=3008 node cqrs/cqrs.js ",
-    "cqrs-w": "DEBUG=sprinthive:* PORT=3008 nodemon cqrs/cqrs.js ",
+    "server": "DEBUG=sprinthive:* PORT=3006 node server/server.js",
+    "server-w": "DEBUG=sprinthive:* PORT=3006 nodemon --watch server --watch lib server/server.js",
+    "subscriptions": "DEBUG=sprinthive:* PORT=3007 node services/subscriptions/subscriptions.js",
+    "subscriptions-w": "DEBUG=sprinthive:* PORT=3007 nodemon --watch services/subscriptions --watch lib --ignore services/subscriptions/offset.json services/subscriptions/subscriptions.js",
+    "auth": "DEBUG=sprinthive:* PORT=3009 node services/auth/auth.js",
+    "auth-w": "DEBUG=sprinthive:* PORT=3009 nodemon --watch services/auth --watch lib --ignore services/auth/offset.json services/auth/auth.js",
+    "entity": "DEBUG=sprinthive:* PORT=3008 node services/entity/entity.js",
+    "entity-w": "DEBUG=sprinthive:* PORT=3008 nodemon --watch services/entity --watch lib --ignore services/entity/offset.json services/entity/entity.js",
     "loadInitialState": "node cqrs/loadInitialState.js",
     "server-prod": "NODE_ENV=production DEBUG=sprinthive:* PORT=3006 node server/server.js ",
     "play": "nodemon test/playground.js",
     "testPasswordHashing": "nodemon test/testPaswordHashing.js",
     "testSignIn": "nodemon test/testSignIn.js",
+    "readOffset": "node test/readOffset.js",
+    "resetOffset": "node test/resetOffset.js",
     "testConsumer": "node test/testConsumer.js",
-    "testProducer": "node test/testProducer.js"
+    "testProducer": "node test/testProducer.js",
+    "testSubscriptions": "nodemon --watch services/subscriptions --watch lib --ignore services/subscriptions/offset.json test/testSubscriptions.js"
   },
   "author": "Jon Lai Lam",
   "license": "MIT",
@@ -28,6 +33,7 @@
     "cors": "^2.8.4",
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
+    "jsonwebtoken": "^8.1.1",
     "moment": "^2.20.1",
     "node-rdkafka": "^2.2.1",
     "redis": "^2.8.0",
@@ -37,6 +43,7 @@
     "socket.io": "^2.0.4"
   },
   "devDependencies": {
-    "nodemon": "^1.14.7"
+    "nodemon": "^1.14.7",
+    "tape": "^4.8.0"
   }
 }

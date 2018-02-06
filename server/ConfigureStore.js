@@ -3,6 +3,10 @@ const {createStore, applyMiddleware, compose} = require('redux');
 const {Subject, Observable} = require("rxjs");
 const axios = require("axios");
 
+const {signIn, signOut} = require('./epics/auth');
+const {relayConnectionActivityToAuthApi} = require('./epics/sockets');
+const {printError} = require('../lib/axiosUtils');
+
 const SOCKET_CONNECTED = "SOCKET_CONNECTED";
 
 const initialState = {socketMap: {}, userMap: {}, counter: 0};
@@ -38,15 +42,6 @@ const dispatchActionsToRedux = (action$, store, {io}) => {
       action.meta.socketId = socket.id;
       subject.next(action);
     });
-
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected", socket.id);
-      axios.post(
-        `http://localhost:3007/socket/disconnect`,
-        {socketId: socket.id})
-        .then(result => console.log(result.data))
-        .catch(error => console.error(`Could not disconnect socket ${socket.id}`))
-    });
   });
 
   return subject;
@@ -62,58 +57,24 @@ const sendActionsFromServerToSockets = (action$, store, {io}) => {
     });
 };
 
-const signIn = (action$) => {
-  return action$.ofType("SIGN_IN_ATTEMPTED")
-    .switchMap(action => {
-      console.log(`Processing action ${action.type} ${JSON.stringify(action.payload, null, 2)}`);
-      const socketId = action.meta.socketId;
-      const user = action.payload;
-      const params = {payload: {username: user.name, password: "password$123"}, socketId};
-      return Observable.fromPromise(axios.post(
-        `http://localhost:3007/cqrs/write/v1/fact/signin/${socketId}/SIGN_IN_ATTEMPTED`,
-        params))
-        .mergeMap(() => Observable.empty());
-    });
-};
-
-const signOut = (action$) => {
-  return action$.ofType("SIGN_OUT_ATTEMPT")
-    .switchMap(action => {
-      console.log(`Processing action ${action.type} ${JSON.stringify(action.payload, null, 2)}`);
-      const socketId = action.meta.socketId;
-      const params = {socketId};
-      return Observable.fromPromise(axios.post("http://localhost:3007/logout", params))
-        .map(({data}) => ({
-          type: "SIGN_OUT_SUCCESS",
-          meta: {
-            socketId,
-            fromServer: true
-          },
-          payload: null
-        }));
-    });
-};
-
 const subscribeToEntity = (action$) => {
   return action$.ofType("SUBSCRIBE_TO_ENTITY")
     .switchMap(action => {
       console.log(`Processing action ${action.type}`);
-      const socketId = action.meta.socketId;
-      const {entityKey, entityId} = action.payload;
-      const params = {socketId, payload: {entityKey, entityId}};
+      // const socketId = action.meta.socketId;
+      // const {entityKey, entityId} = action.payload;
+      // const params = {socketId, payload: {entityKey, entityId}};
 
-      let endpoint = `http://localhost:3007/cqrs/subscribe/v1/entity/${entityKey}/`;
-      if (entityId) endpoint = `${endpoint}${entityId}`;
+      let endpoint = `http://localhost:3007/subscriptions/v1/fact/SUBSCRIBE_TO_ENTITY`;
       console.log("Subscribing to entity", endpoint);
-      axios.post(endpoint, params).then(ans => console.log(ans.data)).catch(err => {
-        if (err.response) {
-          const {status, data} = err.response;
-          console.error("Something went wrong subscribing to an entity", status, data)
-        } else {
-          console.error("Something went wrong subscribing to an entity")
-        }
-      });
+      axios.post(endpoint, action)
+        .then(ans => console.log(ans.data))
+        .catch(e => {
+          printError({e, message: "Something went wrong subscribing to an entity"})
+        });
 
+      return Observable.empty()
+/*
       return Observable.fromPromise(axios.post(endpoint, params))
         .map(({data}) => ({
           type: "ENTITY_LOADED",
@@ -124,10 +85,11 @@ const subscribeToEntity = (action$) => {
             action: {entityKey, entityId}
           }
         }))
-        .catch(err => {
-          console.error("Something went wrong when trying to load an entity", err);
+        .catch(e => {
+          printError({e, message: "Something went wrong when trying to load an entity"})
           return Observable.empty()
         })
+*/
     })
 };
 
@@ -135,14 +97,13 @@ const unsubscribeFromEntity = (action$) => {
   return action$.ofType("UNSUBSCRIBE_FROM_ENTITY")
     .switchMap(action => {
       console.log(`Processing action ${action.type}`);
-      const socketId = action.meta.socketId;
-      const {entityKey, entityId} = action.payload;
-      const params = {socketId, payload: {entityKey, entityId}};
+      // const socketId = action.meta.socketId;
+      const {entityKey} = action.payload;
+      // const params = {socketId, payload: {entityKey, entityId}};
 
-      let endpoint = `http://localhost:3007/cqrs/unsubscribe/v1/entity/${entityKey}/`;
-      if (entityId) endpoint = `${endpoint}${entityId}`;
-      console.log("Unsubscribing from entity", endpoint);
-      axios.post(endpoint, params).then(ans => console.log(ans.data)).catch(err => {
+      let endpoint = `http://localhost:3007/subscriptions/v1/fact/UNSUBSCRIBE_FROM_ENTITY`;
+
+      axios.post(endpoint, action).then(ans => console.log(ans.data)).catch(err => {
         if (err.response) {
           const {status, data} = err.response;
           console.error("Something went wrong un-subscribing to an entity", status, data)
@@ -159,12 +120,8 @@ const dateOfBirthCaptured = (action$) => {
   return action$.ofType("DATE_OF_BIRTH_CAPTURED")
     .switchMap(action => {
       console.log(`Processing action ${action.type}`);
-      const socketId = action.meta.socketId;
-      const {dateOfBirth, entityKey, entityId} = action.payload;
-      const params = {socketId, payload: {dateOfBirth}};
-      return Observable.fromPromise(axios.post(
-        `http://localhost:3007/cqrs/write/v1/fact/${entityKey}/${entityId}/DATE_OF_BIRTH_CAPTURED`,
-        params))
+      return Observable.fromPromise(
+        axios.post(`http://localhost:3008/entity/write/v1/fact`, action))
         .mergeMap(() => Observable.empty());
     })
 };
@@ -180,6 +137,8 @@ const rootEpic = combineEpics(
 );
 
 module.exports = (deps) => {
+  relayConnectionActivityToAuthApi(deps);
+
   const epicMiddleware = createEpicMiddleware(rootEpic, {
     dependencies: {
       ...deps

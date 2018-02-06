@@ -19,10 +19,15 @@ export const dispatchUnSubscribeToEntity = ({entityKey, entityId}) => (
   }
 );
 
-const getEntity = ({state, entityKey, entityId}) =>
-  entityId
-    ? state.entities[entityKey][entityId]
-    : state.entities[entityKey];
+const getEntity = ({state, entityKey, entityId}) => {
+  if (entityKey) {
+    return entityId
+      ? state.entities[entityKey] && state.entities[entityKey][entityId]
+      : state.entities[entityKey];
+  } else {
+    return undefined;
+  }
+};
 
 export const withEntity = ({entityKey, entityId, actions}) => compose(
   connect((state) => {

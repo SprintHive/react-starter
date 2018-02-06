@@ -46,6 +46,6 @@ entityTopicStream
     if (meta.offset > offset) {
       sendMessage({type: "AGE_CALCULATED", entityKey, entityId, payload: {age}, source});
     } else {
-      console.log(`Skipping due to offset ${meta.offset} > ${offset} ${type}`);
+      console.log(`calculate-age: skipping ${action.type} due to offset ${meta.offset} > ${offset} ${type}`);
     }
   });

@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const {Observable, Subject} = require('rxjs');
 const {sign, verifyToken} = require('../../../lib/jwsTokenUtils');
+const filterOffset = require('../../../lib/filterOffset');
 
 const compare = Observable.bindNodeCallback(bcrypt.compare);
 
@@ -17,11 +18,7 @@ const signUserInWithCredentials = (action, store, deps) => {
 
   const partition = Observable.of(action)
     .filter(action => {
-      const offset = deps.offset || -1;
-      if (!action.meta.offset > offset) {
-        console.log(`Skipping due to offset ${action.meta.offset} > ${offset} ${action.type}`);
-      }
-      return action.meta.offset > offset
+      return filterOffset(action.meta.offset, deps.offset);
     })
     .map(action => {
       const state = store.getState();
@@ -77,12 +74,7 @@ const processSignInAttempts = (action$, store, deps) => {
   const {sendMessage} = deps;
   const signInAttemptedStream = action$.ofType("SIGN_IN_ATTEMPTED")
     .filter(action => {
-      const offset = deps.offset || -1;
-      const seenBefore = action.meta.offset > offset;
-      if (!seenBefore) {
-        console.log(`Skipping due to offset ${action.meta.offset} > ${offset} ${action.type}`);
-      }
-      return seenBefore;
+      return filterOffset(action.meta.offset, deps.offset);
     });
 
   const cred = signInAttemptedStream

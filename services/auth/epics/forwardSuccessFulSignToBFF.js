@@ -1,14 +1,11 @@
 const axios = require("axios");
 const {Observable} = require('rxjs');
+const filterOffset = require('../../../lib/filterOffset');
 
 const forwardSuccessFulSignToBFF = (action$, store, deps) => {
   return action$.ofType("SIGN_IN_SUCCESSFUL")
     .filter(action => {
-      const offset = deps.offset || -1;
-      if (!action.meta.offset > offset) {
-        console.log(`Skipping due to offset ${action.meta.offset} > ${offset} ${action.type}`);
-      }
-      return action.meta.offset > offset
+      return filterOffset(action.meta.offset, deps.offset)
     })
     .mergeMap(action => {
       const {payload, type, source} = action;

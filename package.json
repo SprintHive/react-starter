@@ -14,7 +14,7 @@
     "auth-w": "DEBUG=sprinthive:* PORT=3009 nodemon --watch services/auth --watch lib --ignore services/auth/offset.json services/auth/auth.js",
     "entity": "DEBUG=sprinthive:* PORT=3008 node services/entity/entity.js",
     "entity-w": "DEBUG=sprinthive:* PORT=3008 nodemon --watch services/entity --watch lib --ignore services/entity/offset.json services/entity/entity.js",
-    "loadInitialState": "node cqrs/loadInitialState.js",
+    "loadInitialState": "node services/auth/loadInitialState.js",
     "server-prod": "NODE_ENV=production DEBUG=sprinthive:* PORT=3006 node server/server.js ",
     "play": "nodemon test/playground.js",
     "testPasswordHashing": "nodemon test/testPaswordHashing.js",

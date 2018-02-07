@@ -1,3 +1,4 @@
+require('dotenv');
 const {Observable} = require('rxjs');
 
 const userMap = {
@@ -42,9 +43,8 @@ const start = () => {
     passwordUpdated
   );
 
-  // stream.subscribe(a => console.log(a), err => console.error(err));
   const createProducer = require('../../lib/createProducer');
-  const {sendMessage} = createProducer();
+  const {sendMessage} = createProducer({streamOptions: {topic: process.env.entityTopic}});
 
   stream.subscribe(sendMessage, err => console.error(err));
 };

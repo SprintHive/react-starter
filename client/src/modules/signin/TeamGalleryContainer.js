@@ -3,6 +3,8 @@ import {compose, mapProps, setDisplayName, withHandlers} from 'recompose'
 import TeamGallery from "../../components/teamGallery/TeamGallery";
 import {nonOptimalStates} from "../../hoc/nonOptimalStates";
 import {withEntity} from "../../hoc/withEntity";
+import {Redirect} from "react-router-dom";
+import {withLoggedInUser} from "../../hoc/withLoggedInUser";
 
 const dispatchLoginAttempted = user => (
   {
@@ -15,11 +17,19 @@ const dispatchLoginAttempted = user => (
 const loading = (props) => props.entity.loading;
 const showLoadingMessage = () => <h1>Loading...</h1>;
 
+const someOneIsLoggedIn = (props) => props.loggedInUser;
+const redirectToHome = () => {
+  console.log("************************** redirecting");
+  return <Redirect to="/"/>
+};
+
 const enhance = compose(
   setDisplayName('TeamGalleryContainer'),
   withEntity({entityKey: "user", actions: {dispatchLoginAttempted}}),
+  withLoggedInUser,
   nonOptimalStates([
-    {when: loading, render: showLoadingMessage}
+    {when: loading, render: showLoadingMessage},
+    {when: someOneIsLoggedIn, render: redirectToHome}
   ]),
   withHandlers({
     userSelected: ({dispatchLoginAttempted}) => user => {

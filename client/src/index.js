@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
+import {BrowserRouter as Router} from 'react-router-dom'
 import io from 'socket.io-client';
 import {StyleRoot} from 'radium';
 
@@ -15,7 +16,9 @@ const store = configureStore(deps);
 ReactDOM.render(
   <StyleRoot>
     <Provider store={store}>
-      <App/>
+      <Router>
+        <App/>
+      </Router>
     </Provider>
   </StyleRoot>
   ,

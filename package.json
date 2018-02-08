@@ -23,7 +23,10 @@
     "resetOffset": "node test/resetOffset.js",
     "testConsumer": "node test/testConsumer.js",
     "testProducer": "node test/testProducer.js",
-    "testSubscriptions": "nodemon --watch services/subscriptions --watch lib --ignore services/subscriptions/offset.json test/testSubscriptions.js"
+    "clean": "find . -name offset.json | xargs rm",
+    "testSubscriptions": "nodemon --watch services/subscriptions --watch lib --ignore services/subscriptions/offset.json test/testSubscriptions.js",
+    "up": "concurrently -n \"Entity,Auth,Subs,BFF,React\" -c \"red,green,yellow,blue,magenta,cyan,gray\" \"yarn entity\" \"yarn auth\" \"yarn subscriptions\" \"yarn server\" \"yarn client\"",
+    "up-w": "concurrently -n \"Entity,Auth,Subs,BFF,React\" -c \"red,green,yellow,blue,magenta,cyan,gray\" \"yarn entity-w\" \"yarn auth-w\" \"yarn subscriptions-w\" \"yarn server-w\" \"yarn client\""
   },
   "author": "Jon Lai Lam",
   "license": "MIT",
@@ -43,6 +46,7 @@
     "socket.io": "^2.0.4"
   },
   "devDependencies": {
+    "concurrently": "^3.5.1",
     "nodemon": "^1.14.7",
     "tape": "^4.8.0"
   }

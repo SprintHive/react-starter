@@ -23,6 +23,17 @@ function handleSubscribeToEntity(state, action) {
   return ans;
 }
 
+function entityCreated(state, action) {
+  const ans = {...state};
+  const {entityKey, entityId} = action;
+
+  // ensure that the entityKey is in the entities object
+  if (!ans.entities[entityKey]) ans.entities[entityKey] = {};
+
+  let found = ans.entities[entityKey][entityId];
+  if (!found) ans.entities[entityKey][entityId] = action.payload || {};
+  return ans;
+}
 
 export default (state = initialState, action) => {
   switch (action.type) {
@@ -52,8 +63,13 @@ export default (state = initialState, action) => {
       return handleSubscribeToEntity(state, action);
 
     case "DATE_OF_BIRTH_CAPTURED":
+      // we could update our state optimistically here and then the subscription manager does not need to send the
+      // entity updated event to this connected client, this is an optimisation for future Jon
       console.log(action);
       return state;
+
+    case "ENTITY_CREATED":
+      return entityCreated(state, action);
 
     case "ENTITY_LOADED":
     case "ENTITY_UPDATED":

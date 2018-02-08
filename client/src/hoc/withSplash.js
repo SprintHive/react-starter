@@ -17,10 +17,11 @@ const mapToProps = (state) => {
   }
 };
 
-export const withConnection = compose(
+export const withSplash = compose(
   setDisplayName("withConnection"),
   connect(mapToProps),
   withState("timeMounted", "updateTimeMounted", undefined),
+  withState("showSplash", "updateSplash", true),
   nonOptimalStates([
     {when: connecting, render: Splash}
   ])

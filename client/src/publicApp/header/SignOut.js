@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import {compose, renderNothing, setDisplayName, withHandlers} from 'recompose';
 import {nonOptimalStates} from "../../hoc/nonOptimalStates";
 import Button from "../../components/button/Button";
+import {withLoggedInUser} from "../../hoc/withLoggedInUser";
 
 export const SIGN_OUT_ATTEMPT = "SIGN_OUT_ATTEMPT";
 const signOut = () => ({type: SIGN_OUT_ATTEMPT, meta: {remote: true}});
@@ -26,13 +27,13 @@ const style = {
 
 const enhance = compose(
   setDisplayName('SignOut'),
+  withLoggedInUser,
   connect(mapStateToProps, {signOut}),
   nonOptimalStates([
     {when: noOneIsLoggedIn, render: renderNothing()}
   ]),
   withHandlers({
     onClick: ({signOut}) => e => {
-      console.log("onClick");
       signOut();
     }
   })

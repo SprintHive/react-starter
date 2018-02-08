@@ -11,9 +11,10 @@ const connectStreamsToRedux = (action$, store, deps) => {
     .filter(action => action.type === "SOCKET_DISCONNECT")
     .subscribe(action => subject.next(action));
 
+
+  const withListOfActionsToFilter = ["DATE_OF_BIRTH_CAPTURED", "AGE_CALCULATED", "ENTITY_CREATED"];
   entityTopicStream
-    .filter(action => action.type === "DATE_OF_BIRTH_CAPTURED"
-      || action.type === "AGE_CALCULATED")
+    .filter(({type}) => withListOfActionsToFilter.includes(type))
     .subscribe(action => subject.next(action));
 
   return subject;

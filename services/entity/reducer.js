@@ -1,6 +1,18 @@
 
 const initialState = {};
 
+function entityCreated(state, action) {
+  const ans = {...state};
+  const {entityKey, entityId, payload} = action;
+
+  // ensure entity exists on the state object
+  if (!ans[entityKey]) ans[entityKey] = {};
+
+  ans[entityKey][entityId] = payload || {};
+
+  return ans;
+}
+
 function updateEntity(state, action) {
   const ans = {...state};
   const {entityKey, entityId, payload} = action;
@@ -19,6 +31,9 @@ function updateEntity(state, action) {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
+
+    case "ENTITY_CREATED":
+      return entityCreated(state, action);
 
     case "NAME_CAPTURED":
     case "PASSWORD_CAPTURED":

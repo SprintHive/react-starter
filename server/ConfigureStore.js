@@ -7,20 +7,9 @@ const {signIn, signOut} = require('./epics/auth');
 const {relayConnectionActivityToAuthApi} = require('./epics/sockets');
 const {printError} = require('../lib/axiosUtils');
 
-const SOCKET_CONNECTED = "SOCKET_CONNECTED";
-
 const initialState = {socketMap: {}, userMap: {}, counter: 0};
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case "INC":
-      return {...state, ...{counter: state.counter + 1}};
-
-    case SOCKET_CONNECTED:
-      const socketId = action.payload.socketId;
-      const ans = {...state};
-      ans.socketMap[socketId] = {socketId, connectedTime: Date.now(), userId: undefined};
-      return {...state};
-
     default:
       return state;
   }
@@ -31,7 +20,7 @@ const dispatchActionsToRedux = (action$, store, {io}) => {
 
   io.on('connection', (socket) => {
     subject.next({
-      type: SOCKET_CONNECTED, payload: {
+      type: "SOCKET_CONNECTED", payload: {
         socket: socket,
         socketId: socket.id
       }
@@ -61,9 +50,6 @@ const subscribeToEntity = (action$) => {
   return action$.ofType("SUBSCRIBE_TO_ENTITY")
     .switchMap(action => {
       console.log(`Processing action ${action.type}`);
-      // const socketId = action.meta.socketId;
-      // const {entityKey, entityId} = action.payload;
-      // const params = {socketId, payload: {entityKey, entityId}};
 
       let endpoint = `http://localhost:3007/subscriptions/v1/fact/SUBSCRIBE_TO_ENTITY`;
       console.log("Subscribing to entity", endpoint);
@@ -73,23 +59,7 @@ const subscribeToEntity = (action$) => {
           printError({e, message: "Something went wrong subscribing to an entity"})
         });
 
-      return Observable.empty()
-/*
-      return Observable.fromPromise(axios.post(endpoint, params))
-        .map(({data}) => ({
-          type: "ENTITY_LOADED",
-          meta: {socketId, fromServer: true},
-          payload: data,
-          source: {
-            service: "BFF",
-            action: {entityKey, entityId}
-          }
-        }))
-        .catch(e => {
-          printError({e, message: "Something went wrong when trying to load an entity"})
-          return Observable.empty()
-        })
-*/
+      return Observable.empty();
     })
 };
 
@@ -97,9 +67,7 @@ const unsubscribeFromEntity = (action$) => {
   return action$.ofType("UNSUBSCRIBE_FROM_ENTITY")
     .switchMap(action => {
       console.log(`Processing action ${action.type}`);
-      // const socketId = action.meta.socketId;
       const {entityKey} = action.payload;
-      // const params = {socketId, payload: {entityKey, entityId}};
 
       let endpoint = `http://localhost:3007/subscriptions/v1/fact/UNSUBSCRIBE_FROM_ENTITY`;
 
@@ -126,6 +94,16 @@ const dateOfBirthCaptured = (action$) => {
     })
 };
 
+const createEntityAttempted = (action$) => {
+  return action$.ofType("CREATE_ENTITY_ATTEMPTED")
+    .switchMap(action => {
+      console.log(`Processing action ${action.type}`);
+      return Observable.fromPromise(
+        axios.post(`http://localhost:3008/entity/create/v1/fact`, action))
+        .mergeMap(() => Observable.empty());
+    })
+};
+
 const rootEpic = combineEpics(
   dispatchActionsToRedux,
   sendActionsFromServerToSockets,
@@ -133,7 +111,8 @@ const rootEpic = combineEpics(
   signOut,
   dateOfBirthCaptured,
   subscribeToEntity,
-  unsubscribeFromEntity
+  unsubscribeFromEntity,
+  createEntityAttempted
 );
 
 module.exports = (deps) => {
@@ -145,26 +124,11 @@ module.exports = (deps) => {
     }
   });
 
-  const store = createStore(reducer,
+  return createStore(reducer,
     compose(
       applyMiddleware(
         epicMiddleware
       )
     )
   );
-
-  /*
-    const unsubscribe = store.subscribe(() => {
-      console.log(JSON.stringify(store.getState(), null, 2));
-    });
-  */
-
-  /*
-    process.on('exit', () => {
-      console.log("exiting the process");
-      unsubscribe();
-    });
-  */
-
-  return store;
 };

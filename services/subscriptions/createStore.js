@@ -5,11 +5,13 @@ const reducer = require('./reducer');
 const {connectStreamsToRedux} = require('./epics/connectStreamsToRedux');
 const {forwardEntityUpdatesToSubscribers} = require('./epics/forwardEntityUpdatesToSubscribers');
 const {loadEntityForInitialSubscribers} = require('./epics/loadEntityForInitialSubscribers');
+const {forwardEntityCreatedToSubscriber} = require('./epics/forwardEntityCreatedToSubscriber');
 
 const rootEpic = combineEpics(
   connectStreamsToRedux,
   forwardEntityUpdatesToSubscribers,
-  loadEntityForInitialSubscribers
+  loadEntityForInitialSubscribers,
+  forwardEntityCreatedToSubscriber
 );
 
 module.exports = (deps) => {

@@ -46,7 +46,9 @@ const start = () => {
   const createProducer = require('../../lib/createProducer');
   const {sendMessage} = createProducer({streamOptions: {topic: process.env.entityTopic}});
 
-  stream.subscribe(sendMessage, err => console.error(err));
+  setTimeout(() => {
+    stream.subscribe(sendMessage, err => console.error(err));
+  }, 100);
 };
 
 start();

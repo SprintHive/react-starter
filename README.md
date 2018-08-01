@@ -4,7 +4,7 @@ An example of a react js app configured to deployed with ship.
 
 ## Progress so far
 
-The following commands are¡ to be run from the project root.
+The following commands are to be run from the project root.
 
 The basic dev workflow is to open 2 terminals and run the client in one and the server in the other.
 

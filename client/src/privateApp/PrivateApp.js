@@ -1,13 +1,32 @@
 import React from 'react'
-import {compose, setDisplayName} from 'recompose'
+import {compose, renderNothing, setDisplayName} from 'recompose'
+import {nonOptimalStates} from "../hoc/nonOptimalStates";
+import {withLoggedInUser, noUserIsLoggedIn} from "../hoc/withLoggedInUser";
+import FlexBox from "../components/FlexBox";
+import LeadList from "./LeadList";
 
 const enhance = compose(
-  setDisplayName('PrivateApp')
+  setDisplayName('PrivateApp'),
+  withLoggedInUser,
+  nonOptimalStates([{when: noUserIsLoggedIn, render: renderNothing}])
 );
 
 export const PrivateApp = (props) => {
   return (
-    <h1>PrivateApp</h1>
+    <FlexBox centered>
+      <FlexBox column flexGrow centered>
+        <h1>In progress</h1>
+        <LeadList/>
+      </FlexBox>
+      <FlexBox column flexGrow centered>
+        <h1>Accepted</h1>
+        <LeadList/>
+      </FlexBox>
+      <FlexBox column flexGrow centered>
+        <h1>Rejected</h1>
+        <LeadList/>
+      </FlexBox>
+    </FlexBox>
   )
 };
 

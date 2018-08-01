@@ -15,7 +15,7 @@ const ageStyle = {
 };
 
 const enhance = compose(
-  setDisplayName("idNumberInput"),
+  setDisplayName("DisplayAge"),
 );
 
 export default enhance(({age}) =>

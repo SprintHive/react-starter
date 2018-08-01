@@ -1,6 +1,6 @@
 # React starter (overlord)
 
-An proof of concept with examples of how different user cases could be implemented using event sourcing.
+A proof of concept with examples of how different use-cases could be implemented using event sourcing.
 
 ## Get Node
 

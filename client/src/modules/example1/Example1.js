@@ -1,13 +1,14 @@
 import React from 'react'
+import moment from "moment";
 import {compose, renderNothing, setDisplayName, withHandlers, withProps} from 'recompose'
 import DateOfBirthInput from "../../components/dateOfBirthInput/DateOfBirthInput";
 import FlexBox from "../../components/FlexBox";
 import DisplayAge from "../../components/DisplayAge";
-import moment from "moment";
 import {dateOfBirthCaptured} from "../../components/dateOfBirthInput/DateOfBirthActions";
 import {DisplayPerson} from "../../components/displayPerson/DisplayPerson";
 import {nonOptimalStates} from "../../hoc/nonOptimalStates";
 import {withEntity} from "../../hoc/withEntity";
+import connect from "react-redux/es/connect/connect";
 
 const style = {
   container: {
@@ -17,7 +18,8 @@ const style = {
 
 const enhance = compose(
   setDisplayName('Example1'),
-  withEntity({entityKey: "user", entityId: 2, actions: {dateOfBirthCaptured}}),
+  withProps({entityKey: "user", entityId: 2}),
+  withEntity(),
   withProps(props => {
     let defaultDateOfBirth = "";
     if (props.entity.payload && props.entity.payload.dateOfBirth) {
@@ -25,6 +27,7 @@ const enhance = compose(
     }
     return {defaultDateOfBirth}
   }),
+  connect(null, {dateOfBirthCaptured}),
   withHandlers({
     done: ({dateOfBirthCaptured, entity}) => ({dateOfBirth}) => {
       const {entityKey, entityId} = entity;

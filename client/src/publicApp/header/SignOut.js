@@ -6,7 +6,7 @@ import Button from "../../components/button/Button";
 import {withLoggedInUser} from "../../hoc/withLoggedInUser";
 
 export const SIGN_OUT_ATTEMPT = "SIGN_OUT_ATTEMPT";
-const signOut = () => ({type: SIGN_OUT_ATTEMPT, meta: {remote: true}});
+const signOut = () => ({type: SIGN_OUT_ATTEMPT});
 
 const mapStateToProps = (state) => {
   return {loggedInUser: state.auth.user}

@@ -5,10 +5,8 @@ const signIn = (action$, store, deps) => {
   return action$.ofType("SIGN_IN_ATTEMPTED")
     .mergeMap(action => {
       console.log(`Processing action ${action.type} ${JSON.stringify(action.payload, null, 2)}`);
-      return Observable.fromPromise(axios.post(
-        `http://localhost:3009/auth/v1/fact/SIGN_IN_ATTEMPTED`,
-        action))
-        .mergeMap(() => Observable.empty());
+      const {userId, name, avatarUrl} = action.payload.user;
+      return Observable.of({type: "SIGN_IN_SUCCESSFUL", payload: {userId, name, avatarUrl}});
     });
 };
 

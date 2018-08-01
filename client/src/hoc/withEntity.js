@@ -29,8 +29,8 @@ const getEntity = ({state, entityKey, entityId}) => {
   }
 };
 
-export const withEntity = ({entityKey, entityId, actions}) => compose(
-  connect((state) => {
+export const withEntity = () => compose(
+  connect((state, {entityKey, entityId}) => {
     const props = {};
     const key = calcKey(entityKey, entityId);
     const payload = getEntity({state, entityKey, entityId}) || {};
@@ -39,7 +39,7 @@ export const withEntity = ({entityKey, entityId, actions}) => compose(
       ? true
       : state.loading[key];
     return props;
-  }, {dispatchSubscribeToEntity, dispatchUnSubscribeToEntity, ...actions}),
+  }, {dispatchSubscribeToEntity, dispatchUnSubscribeToEntity}),
   lifecycle({
     componentWillMount() {
       const {entity, dispatchSubscribeToEntity} = this.props;

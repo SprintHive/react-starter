@@ -1,7 +1,9 @@
 import React from 'react'
-import {compose, setDisplayName} from 'recompose'
+import {compose, renderNothing, setDisplayName} from 'recompose'
 import FlexBox from "../components/FlexBox";
-import CreateLeadButton from "./leads/CreateLeadButton";
+import CaptureLead from "./leads/CaptureLead";
+import {nonOptimalStates} from "../hoc/nonOptimalStates";
+import {withLoggedInUser, someOneIsLoggedIn} from "../hoc/withLoggedInUser";
 
 const styles = {
   containerStyle: {
@@ -10,13 +12,16 @@ const styles = {
 };
 
 const enhance = compose(
-  setDisplayName('PublicApp')
+  setDisplayName('PublicApp'),
+  withLoggedInUser,
+  nonOptimalStates([
+    {when: someOneIsLoggedIn, render: renderNothing}])
 );
 
 export const PublicApp = () => {
   return (
     <FlexBox style={[styles.containerStyle]} column centered>
-      <CreateLeadButton/>
+      <CaptureLead/>
     </FlexBox>
   )
 };

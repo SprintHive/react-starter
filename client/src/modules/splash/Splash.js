@@ -8,6 +8,7 @@ let dispose = undefined;
 
 const potentialFunFacts = [
   {subTitle: "Did you know:", message: "Koala bears have 2 thumbs..."},
+  {subTitle: "Did you know:", message: "A Hyrax aka Dassie is the closest relative to the Elephant..."},
   {subTitle: "Fun fact:", message: "Ordering is not preserved across Kafka partitions."},
   {subTitle: "Fun fact:", message: "The real world is eventually consistent."},
 ];

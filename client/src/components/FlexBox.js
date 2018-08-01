@@ -20,7 +20,11 @@ export const flexStyle = {
   },
   flexItem: {
     flex: 1
-  }
+  },
+  flexGrow: {
+    flexGrow: 1
+  },
+
 };
 
 const enhance = compose(
@@ -29,12 +33,13 @@ const enhance = compose(
   Radium,
 );
 
-const FlexBox = enhance(({style, column, centered, wrap, item, children}) =>
+const FlexBox = enhance(({style, column, centered, wrap, item, flexGrow, children}) =>
   <div style={[
     column && flexStyle.flexDirectionColumn,
     centered && flexStyle.centered,
     wrap && flexStyle.flexWrap,
     item && flexStyle.flexItem,
+    flexGrow && flexStyle.flexGrow,
     style
   ]}>
     {children}

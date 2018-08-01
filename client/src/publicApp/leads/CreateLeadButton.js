@@ -5,8 +5,8 @@ import {setDisplayName, withHandlers} from "recompose";
 import compose from "redux/es/compose";
 import FlexBox from "../../components/FlexBox";
 
-export const CREATE_ENTITY_ATTEMPTED = "CREATE_ENTITY_ATTEMPTED";
-const createLead = () => ({type: CREATE_ENTITY_ATTEMPTED, entityKey: "lead", meta: {remote: true}});
+export const CREATE_LEAD_ATTEMPTED = "CREATE_LEAD_ATTEMPTED";
+const createLead = () => ({type: CREATE_LEAD_ATTEMPTED, entityKey: "lead"});
 
 const style = {
   container: {
